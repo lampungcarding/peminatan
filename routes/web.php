@@ -1,0 +1,97 @@
+<?php
+
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\TesMinatController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes — Sistem Perencanaan Karier & Studi Siswa v2
+|--------------------------------------------------------------------------
+*/
+
+// Redirect root ke login
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+// Auth Routes
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Siswa Routes (Middleware: auth)
+Route::middleware('auth')->group(function () {
+    // Dashboard & Profil
+    Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
+    Route::get('/siswa', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
+    Route::get('/pilihan-saya', [SiswaController::class, 'pilihanSaya'])->name('siswa.pilihan-saya');
+    Route::get('/profil', [SiswaController::class, 'profil'])->name('siswa.profil');
+
+    // Modul Tes Minat Karier (RIASEC)
+    Route::get('/tes-minat', [TesMinatController::class, 'index'])->name('tes.index');
+    Route::get('/tes-minat/mulai', [TesMinatController::class, 'mulai'])->name('tes.mulai');
+    Route::post('/tes-minat/simpan', [TesMinatController::class, 'simpan'])->name('tes.simpan');
+    Route::get('/tes-minat/hasil', [TesMinatController::class, 'hasil'])->name('tes.hasil');
+    Route::get('/rekomendasi', [TesMinatController::class, 'rekomendasi'])->name('tes.rekomendasi');
+
+    // Modul Rencana Setelah Lulus
+    Route::get('/rencana', [SiswaController::class, 'rencana'])->name('siswa.rencana');
+    Route::post('/rencana', [SiswaController::class, 'simpanRencana'])->name('siswa.rencana.simpan');
+    Route::get('/siswa/rencana', [SiswaController::class, 'rencana']); // fallback alias
+    Route::post('/siswa/rencana', [SiswaController::class, 'simpanRencana']); // fallback alias
+
+    // Pencarian Kampus & Prodi via KIP Kuliah API
+    Route::post('/siswa/cari-kampus', [SiswaController::class, 'cariKampus'])->name('siswa.cari-kampus');
+    Route::post('/siswa/cari-prodi', [SiswaController::class, 'cariProdi'])->name('siswa.cari-prodi');
+
+    // Konfirmasi & Submit Akhir
+    Route::get('/konfirmasi', [SiswaController::class, 'konfirmasi'])->name('siswa.konfirmasi');
+    Route::get('/siswa/konfirmasi', [SiswaController::class, 'konfirmasi']); // fallback alias
+    Route::post('/submit', [SiswaController::class, 'submit'])->name('siswa.submit');
+    Route::post('/siswa/submit', [SiswaController::class, 'submit']); // fallback alias
+});
+
+// Admin Routes (Middleware: auth, role:admin)
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+
+    // Data Siswa
+    Route::get('/siswa', [AdminController::class, 'dataSiswa'])->name('admin.siswa');
+
+    // Hasil Tes Minat RIASEC
+    Route::get('/hasil-tes', [AdminController::class, 'hasilTes'])->name('admin.hasil-tes');
+    Route::delete('/hasil-tes/{id}/reset', [AdminController::class, 'resetTes'])->name('admin.hasil-tes.reset');
+
+    // Rencana Siswa
+    Route::get('/rencana', [AdminController::class, 'rencanaSiswa'])->name('admin.rencana');
+    Route::get('/rencana-siswa', [AdminController::class, 'rencanaSiswa'])->name('admin.rencana-siswa'); // alias
+    Route::delete('/rencana-siswa/{id}/reset', [AdminController::class, 'resetPilihan'])->name('admin.rencana-siswa.reset');
+
+    // Bank Rekomendasi Karier
+    Route::get('/rekomendasi', [AdminController::class, 'rekomendasi'])->name('admin.rekomendasi');
+
+    // Pengelolaan Bank Pertanyaan Tes
+    Route::get('/pertanyaan-tes', [AdminController::class, 'pertanyaanTes'])->name('admin.pertanyaan-tes');
+    Route::post('/pertanyaan-tes', [AdminController::class, 'simpanPertanyaan'])->name('admin.pertanyaan-tes.simpan');
+    Route::put('/pertanyaan-tes/{id}', [AdminController::class, 'updatePertanyaan'])->name('admin.pertanyaan-tes.update');
+
+    // Penjelajah Kampus & Prodi
+    Route::get('/kampus-prodi', [AdminController::class, 'kampusProdi'])->name('admin.kampus-prodi');
+
+    // Laporan & Export Komprehensif
+    Route::get('/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');
+    Route::get('/laporan/export', [AdminController::class, 'exportLaporan'])->name('admin.laporan.export');
+    Route::get('/rencana-siswa/export', [AdminController::class, 'exportLaporan'])->name('admin.rencana-siswa.export'); // alias
+
+    // Pengaturan Aplikasi
+    Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('admin.pengaturan');
+    Route::post('/pengaturan/umum', [AdminController::class, 'simpanPengaturanUmum'])->name('admin.pengaturan.umum');
+    Route::post('/pengaturan/password', [AdminController::class, 'updatePasswordAdmin'])->name('admin.pengaturan.password');
+    Route::post('/pengaturan/clear-cache', [AdminController::class, 'clearCache'])->name('admin.pengaturan.clear-cache');
+    Route::post('/pengaturan/sync-kip', [AdminController::class, 'syncKip'])->name('admin.pengaturan.sync-kip');
+    Route::post('/pengaturan/reimport-excel', [AdminController::class, 'reimportExcel'])->name('admin.pengaturan.reimport-excel');
+});
