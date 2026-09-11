@@ -54,13 +54,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/siswa/submit', [SiswaController::class, 'submit']); // fallback alias
 });
 
-// Admin Routes (Middleware: auth, role:admin)
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+// Admin & Guru BK Shared Routes (Middleware: auth, role:admin,guru_bk)
+Route::middleware(['auth', 'role:admin,guru_bk'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
 
     // Data Siswa
     Route::get('/siswa', [AdminController::class, 'dataSiswa'])->name('admin.siswa');
+    Route::post('/siswa', [AdminController::class, 'siswaStore'])->name('admin.siswa.store');
+    Route::put('/siswa/{id}', [AdminController::class, 'siswaUpdate'])->name('admin.siswa.update');
+    Route::delete('/siswa/{id}', [AdminController::class, 'siswaDestroy'])->name('admin.siswa.destroy');
 
     // Hasil Tes Minat RIASEC
     Route::get('/hasil-tes', [AdminController::class, 'hasilTes'])->name('admin.hasil-tes');
@@ -74,11 +77,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     // Bank Rekomendasi Karier
     Route::get('/rekomendasi', [AdminController::class, 'rekomendasi'])->name('admin.rekomendasi');
 
-    // Pengelolaan Bank Pertanyaan Tes
-    Route::get('/pertanyaan-tes', [AdminController::class, 'pertanyaanTes'])->name('admin.pertanyaan-tes');
-    Route::post('/pertanyaan-tes', [AdminController::class, 'simpanPertanyaan'])->name('admin.pertanyaan-tes.simpan');
-    Route::put('/pertanyaan-tes/{id}', [AdminController::class, 'updatePertanyaan'])->name('admin.pertanyaan-tes.update');
-
     // Penjelajah Kampus & Prodi
     Route::get('/kampus-prodi', [AdminController::class, 'kampusProdi'])->name('admin.kampus-prodi');
 
@@ -87,11 +85,25 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/laporan/export', [AdminController::class, 'exportLaporan'])->name('admin.laporan.export');
     Route::get('/rencana-siswa/export', [AdminController::class, 'exportLaporan'])->name('admin.rencana-siswa.export'); // alias
 
-    // Pengaturan Aplikasi
-    Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('admin.pengaturan');
-    Route::post('/pengaturan/umum', [AdminController::class, 'simpanPengaturanUmum'])->name('admin.pengaturan.umum');
-    Route::post('/pengaturan/password', [AdminController::class, 'updatePasswordAdmin'])->name('admin.pengaturan.password');
-    Route::post('/pengaturan/clear-cache', [AdminController::class, 'clearCache'])->name('admin.pengaturan.clear-cache');
-    Route::post('/pengaturan/sync-kip', [AdminController::class, 'syncKip'])->name('admin.pengaturan.sync-kip');
-    Route::post('/pengaturan/reimport-excel', [AdminController::class, 'reimportExcel'])->name('admin.pengaturan.reimport-excel');
+    // Admin Only Routes
+    Route::middleware('role:admin')->group(function () {
+        // Pengelolaan Akun Guru BK & Class Mapping
+        Route::get('/guru-bk', [AdminController::class, 'guruBkIndex'])->name('admin.guru-bk');
+        Route::post('/guru-bk', [AdminController::class, 'guruBkStore'])->name('admin.guru-bk.store');
+        Route::put('/guru-bk/{id}', [AdminController::class, 'guruBkUpdate'])->name('admin.guru-bk.update');
+        Route::delete('/guru-bk/{id}', [AdminController::class, 'guruBkDestroy'])->name('admin.guru-bk.destroy');
+
+        // Pengelolaan Bank Pertanyaan Tes
+        Route::get('/pertanyaan-tes', [AdminController::class, 'pertanyaanTes'])->name('admin.pertanyaan-tes');
+        Route::post('/pertanyaan-tes', [AdminController::class, 'simpanPertanyaan'])->name('admin.pertanyaan-tes.simpan');
+        Route::put('/pertanyaan-tes/{id}', [AdminController::class, 'updatePertanyaan'])->name('admin.pertanyaan-tes.update');
+
+        // Pengaturan Aplikasi
+        Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('admin.pengaturan');
+        Route::post('/pengaturan/umum', [AdminController::class, 'simpanPengaturanUmum'])->name('admin.pengaturan.umum');
+        Route::post('/pengaturan/password', [AdminController::class, 'updatePasswordAdmin'])->name('admin.pengaturan.password');
+        Route::post('/pengaturan/clear-cache', [AdminController::class, 'clearCache'])->name('admin.pengaturan.clear-cache');
+        Route::post('/pengaturan/sync-kip', [AdminController::class, 'syncKip'])->name('admin.pengaturan.sync-kip');
+        Route::post('/pengaturan/reimport-excel', [AdminController::class, 'reimportExcel'])->name('admin.pengaturan.reimport-excel');
+    });
 });

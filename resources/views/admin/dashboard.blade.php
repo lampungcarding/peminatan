@@ -18,7 +18,7 @@
 {{-- 4 Stat Cards (PRD Section 19) --}}
 <div class="row g-3 mb-4">
     {{-- Total Siswa --}}
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="col-12 col-md-6 col-xl-3">
         <div class="stat-card-custom">
             <div class="stat-icon-circle stat-icon-total">
                 <i class="bi bi-people-fill"></i>
@@ -32,7 +32,7 @@
     </div>
 
     {{-- Tes Selesai --}}
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="col-12 col-md-6 col-xl-3">
         <div class="stat-card-custom">
             <div class="stat-icon-circle" style="background-color: #06b6d4;">
                 <i class="bi bi-patch-check-fill"></i>
@@ -46,7 +46,7 @@
     </div>
 
     {{-- Belum Tes --}}
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="col-12 col-md-6 col-xl-3">
         <div class="stat-card-custom">
             <div class="stat-icon-circle" style="background-color: #f59e0b;">
                 <i class="bi bi-hourglass-split"></i>
@@ -60,7 +60,7 @@
     </div>
 
     {{-- Data Lengkap --}}
-    <div class="col-12 col-sm-6 col-xl-3">
+    <div class="col-12 col-md-6 col-xl-3">
         <div class="stat-card-custom">
             <div class="stat-icon-circle stat-icon-kuliah">
                 <i class="bi bi-shield-check"></i>
@@ -86,8 +86,8 @@
                 </div>
             </div>
 
-            <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-3 pt-2">
-                <div style="position: relative; width: 190px; height: 190px; flex-shrink: 0;" class="d-flex align-items-center justify-content-center">
+            <div class="d-flex flex-column flex-sm-row flex-lg-column flex-xxl-row align-items-center justify-content-center justify-content-sm-between gap-3 pt-2">
+                <div style="position: relative; width: 170px; height: 170px; max-width: 100%; flex-shrink: 0;" class="d-flex align-items-center justify-content-center">
                     <canvas id="distribusiChart"></canvas>
                     @if($totalSubmitRencana === 0)
                         <div style="position: absolute; text-align: center; pointer-events: none;">
@@ -98,7 +98,7 @@
                 </div>
 
                 {{-- Legend Kolom Kanan --}}
-                <div class="d-flex flex-column gap-2 w-100 ps-sm-3">
+                <div class="d-flex flex-column gap-2 w-100 ps-sm-3 ps-lg-0 ps-xxl-3" style="min-width: 0;">
                     <div class="d-flex align-items-center justify-content-between py-1 border-bottom">
                         <div class="d-flex align-items-center gap-2">
                             <span style="width:10px; height:10px; border-radius:50%; background-color:#2563eb; display:inline-block;"></span>
@@ -150,7 +150,7 @@
                 </div>
             </div>
 
-            <div style="height: 220px; width: 100%;">
+            <div style="position: relative; height: 220px; width: 100%; min-width: 0;">
                 <canvas id="riasecBarChart"></canvas>
             </div>
         </div>
@@ -159,12 +159,12 @@
 
 {{-- Data Rencana Siswa Terbaru Table Panel --}}
 <div class="panel-card" id="tabel-rencana">
-    <div class="panel-header">
+    <div class="panel-header flex-wrap gap-2">
         <div>
             <h2>Data Pilihan Terbaru</h2>
             <p>Pengisian rencana kelulusan siswa terbaru</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
             <a href="{{ route('admin.rencana') }}" class="btn-export-outline">
                 <i class="bi bi-arrow-right"></i> Lihat Semua Rencana
             </a>

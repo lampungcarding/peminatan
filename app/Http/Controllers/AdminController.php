@@ -23,45 +23,90 @@ class AdminController extends Controller
     ) {}
 
     /**
-     * Dashboard Admin — Statistik komprehensif Sistem Perencanaan Karier & Studi Siswa v2.
+     * Scoping query User (siswa) jika user yang login adalah Guru BK.
+     */
+    protected function applySiswaScope($query)
+    {
+        $user = auth()->user();
+        if ($user && $user->isGuruBk()) {
+            $kelasBinaan = $user->kelas_binaan_array;
+            $query->whereIn('kelas', $kelasBinaan);
+        }
+        return $query;
+    }
+
+    /**
+     * Scoping query relasi ke User (CareerResult / PilihanSetelahLulus) jika login sebagai Guru BK.
+     */
+    protected function applyUserRelationScope($query)
+    {
+        $user = auth()->user();
+        if ($user && $user->isGuruBk()) {
+            $kelasBinaan = $user->kelas_binaan_array;
+            $query->whereHas('user', function ($q) use ($kelasBinaan) {
+                $q->whereIn('kelas', $kelasBinaan);
+            });
+        }
+        return $query;
+    }
+
+    /**
+     * Dapatkan daftar kelas yang relevan (semua kelas untuk Admin, atau kelas binaan untuk Guru BK).
+     */
+    protected function getKelasListForUser()
+    {
+        $user = auth()->user();
+        $query = User::where('role', 'siswa')->whereNotNull('kelas');
+
+        if ($user && $user->isGuruBk()) {
+            $query->whereIn('kelas', $user->kelas_binaan_array);
+        }
+
+        return $query->distinct()->pluck('kelas')->sort()->values();
+    }
+
+    /**
+     * Dashboard Admin / Guru BK — Statistik komprehensif.
      */
     public function dashboard(Request $request)
     {
-        // 1. Stat cards v2
-        $totalSiswa = User::where('role', 'siswa')->count();
-        $totalTesSelesai = CareerResult::count();
+        // 1. Stat cards
+        $siswaQuery = $this->applySiswaScope(User::where('role', 'siswa'));
+        $totalSiswa = (clone $siswaQuery)->count();
+
+        $totalTesSelesai = $this->applyUserRelationScope(CareerResult::query())->count();
         $totalBelumTes = max(0, $totalSiswa - $totalTesSelesai);
 
-        $totalSubmitRencana = PilihanSetelahLulus::count();
+        $totalSubmitRencana = $this->applyUserRelationScope(PilihanSetelahLulus::query())->count();
         $totalBelumRencana = max(0, $totalSiswa - $totalSubmitRencana);
 
-        // Siswa yang datanya lengkap (sudah tes RIASEC dan sudah submit rencana)
-        $totalDataLengkap = User::where('role', 'siswa')
+        // Siswa yang datanya lengkap
+        $totalDataLengkap = (clone $siswaQuery)
             ->has('careerResult')
             ->has('pilihanSetelahLulus')
             ->count();
 
         // Rincian Rencana
-        $totalKuliah = PilihanSetelahLulus::where('rencana', 'kuliah')->count();
-        $totalBekerja = PilihanSetelahLulus::where('rencana', 'bekerja')->count();
-        $totalWirausaha = PilihanSetelahLulus::where('rencana', 'berwirausaha')->count();
+        $totalKuliah = $this->applyUserRelationScope(PilihanSetelahLulus::where('rencana', 'kuliah'))->count();
+        $totalBekerja = $this->applyUserRelationScope(PilihanSetelahLulus::where('rencana', 'bekerja'))->count();
+        $totalWirausaha = $this->applyUserRelationScope(PilihanSetelahLulus::where('rencana', 'berwirausaha'))->count();
 
         $pctKuliah = $totalSiswa > 0 ? round(($totalKuliah / $totalSiswa) * 100) : 0;
         $pctBekerja = $totalSiswa > 0 ? round(($totalBekerja / $totalSiswa) * 100) : 0;
         $pctWirausaha = $totalSiswa > 0 ? round(($totalWirausaha / $totalSiswa) * 100) : 0;
         $pctBelumRencana = $totalSiswa > 0 ? round(($totalBelumRencana / $totalSiswa) * 100) : 0;
 
-        // 2. Statistik Distribusi RIASEC Dominan (6 Dimensi)
+        // 2. Statistik Distribusi RIASEC Dominan
         $riasecDistribution = [
-            'Realistic' => CareerResult::where('dominant_type', 'Realistic')->count(),
-            'Investigative' => CareerResult::where('dominant_type', 'Investigative')->count(),
-            'Artistic' => CareerResult::where('dominant_type', 'Artistic')->count(),
-            'Social' => CareerResult::where('dominant_type', 'Social')->count(),
-            'Enterprising' => CareerResult::where('dominant_type', 'Enterprising')->count(),
-            'Conventional' => CareerResult::where('dominant_type', 'Conventional')->count(),
+            'Realistic' => $this->applyUserRelationScope(CareerResult::where('dominant_type', 'Realistic'))->count(),
+            'Investigative' => $this->applyUserRelationScope(CareerResult::where('dominant_type', 'Investigative'))->count(),
+            'Artistic' => $this->applyUserRelationScope(CareerResult::where('dominant_type', 'Artistic'))->count(),
+            'Social' => $this->applyUserRelationScope(CareerResult::where('dominant_type', 'Social'))->count(),
+            'Enterprising' => $this->applyUserRelationScope(CareerResult::where('dominant_type', 'Enterprising'))->count(),
+            'Conventional' => $this->applyUserRelationScope(CareerResult::where('dominant_type', 'Conventional'))->count(),
         ];
 
-        // 3. Tren 6 bulan terakhir untuk Bar Chart Rencana
+        // 3. Tren 6 bulan terakhir
         $months = [];
         $chartKuliah = [];
         $chartBekerja = [];
@@ -72,24 +117,23 @@ class AdminController extends Controller
             $monthKey = $monthDate->format('Y-m');
             $months[] = $monthDate->translatedFormat('M Y');
 
-            $chartKuliah[] = PilihanSetelahLulus::where('rencana', 'kuliah')
-                ->where('submitted_at', 'like', $monthKey . '%')
-                ->count();
+            $chartKuliah[] = $this->applyUserRelationScope(
+                PilihanSetelahLulus::where('rencana', 'kuliah')->where('submitted_at', 'like', $monthKey . '%')
+            )->count();
 
-            $chartBekerja[] = PilihanSetelahLulus::where('rencana', 'bekerja')
-                ->where('submitted_at', 'like', $monthKey . '%')
-                ->count();
+            $chartBekerja[] = $this->applyUserRelationScope(
+                PilihanSetelahLulus::where('rencana', 'bekerja')->where('submitted_at', 'like', $monthKey . '%')
+            )->count();
 
-            $chartWirausaha[] = PilihanSetelahLulus::where('rencana', 'berwirausaha')
-                ->where('submitted_at', 'like', $monthKey . '%')
-                ->count();
+            $chartWirausaha[] = $this->applyUserRelationScope(
+                PilihanSetelahLulus::where('rencana', 'berwirausaha')->where('submitted_at', 'like', $monthKey . '%')
+            )->count();
         }
 
         // 4. Data Rencana Terbaru untuk Tabel Dashboard
-        $pilihanTerbaru = PilihanSetelahLulus::with(['user.careerResult'])
-            ->orderBy('submitted_at', 'desc')
-            ->limit(8)
-            ->get();
+        $pilihanTerbaru = $this->applyUserRelationScope(
+            PilihanSetelahLulus::with(['user.careerResult'])->orderBy('submitted_at', 'desc')
+        )->limit(8)->get();
 
         return view('admin.dashboard', compact(
             'totalSiswa',
@@ -119,7 +163,7 @@ class AdminController extends Controller
      */
     public function dataSiswa(Request $request)
     {
-        $query = User::where('role', 'siswa')->with(['pilihanSetelahLulus', 'careerResult']);
+        $query = $this->applySiswaScope(User::where('role', 'siswa')->with(['pilihanSetelahLulus', 'careerResult']));
 
         // Filter Kelas
         if ($request->filled('kelas') && $request->kelas !== 'Semua') {
@@ -175,16 +219,12 @@ class AdminController extends Controller
 
         $siswaList = $query->orderBy('kelas')->orderBy('name')->paginate(20)->withQueryString();
 
-        $kelasList = User::where('role', 'siswa')
-            ->whereNotNull('kelas')
-            ->distinct()
-            ->pluck('kelas')
-            ->sort()
-            ->values();
+        $kelasList = $this->getKelasListForUser();
 
-        $totalSiswa = User::where('role', 'siswa')->count();
-        $totalTes = CareerResult::count();
-        $totalRencana = PilihanSetelahLulus::count();
+        $siswaBase = $this->applySiswaScope(User::where('role', 'siswa'));
+        $totalSiswa = (clone $siswaBase)->count();
+        $totalTes = $this->applyUserRelationScope(CareerResult::query())->count();
+        $totalRencana = $this->applyUserRelationScope(PilihanSetelahLulus::query())->count();
 
         return view('admin.siswa', compact(
             'siswaList',
@@ -196,11 +236,126 @@ class AdminController extends Controller
     }
 
     /**
+     * Simpan Siswa Baru (CRUD Siswa).
+     */
+    public function siswaStore(Request $request)
+    {
+        $allowedKelas = $this->getKelasListForUser();
+
+        $rules = [
+            'name' => 'required|string|max:255',
+            'nisn' => 'required|string|max:20|unique:users,nisn',
+            'kelas' => 'required|string|max:50',
+            'tempat_lahir' => 'nullable|string|max:100',
+            'tanggal_lahir' => 'nullable|date',
+            'email' => 'nullable|email|max:255|unique:users,email',
+            'password' => 'nullable|string|min:6',
+        ];
+
+        if (auth()->user()->isGuruBk()) {
+            $rules['kelas'] .= '|in:' . implode(',', $allowedKelas->toArray());
+        }
+
+        $request->validate($rules, [
+            'nisn.unique' => 'NISN sudah terdaftar di sistem.',
+            'email.unique' => 'Email sudah digunakan oleh akun lain.',
+            'kelas.in' => 'Kelas yang dipilih tidak berada dalam lingkup binaan Anda.',
+        ]);
+
+        $email = $request->filled('email')
+            ? $request->email
+            : $request->nisn . '@sekolah.id';
+
+        $password = $request->filled('password')
+            ? Hash::make($request->password)
+            : Hash::make($request->nisn ?: 'password');
+
+        User::create([
+            'name' => $request->name,
+            'nisn' => $request->nisn,
+            'email' => $email,
+            'password' => $password,
+            'role' => 'siswa',
+            'kelas' => $request->kelas,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
+        ]);
+
+        return redirect()->route('admin.siswa')->with('success', "Siswa '{$request->name}' ({$request->kelas}) berhasil ditambahkan.");
+    }
+
+    /**
+     * Update Data Siswa (CRUD Siswa).
+     */
+    public function siswaUpdate(Request $request, $id)
+    {
+        $siswa = $this->applySiswaScope(User::where('role', 'siswa'))->findOrFail($id);
+        $allowedKelas = $this->getKelasListForUser();
+
+        $rules = [
+            'name' => 'required|string|max:255',
+            'nisn' => 'required|string|max:20|unique:users,nisn,' . $id,
+            'kelas' => 'required|string|max:50',
+            'tempat_lahir' => 'nullable|string|max:100',
+            'tanggal_lahir' => 'nullable|date',
+            'email' => 'nullable|email|max:255|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6',
+        ];
+
+        if (auth()->user()->isGuruBk()) {
+            $rules['kelas'] .= '|in:' . implode(',', $allowedKelas->toArray());
+        }
+
+        $request->validate($rules, [
+            'nisn.unique' => 'NISN sudah terdaftar pada siswa lain.',
+            'email.unique' => 'Email sudah digunakan oleh akun lain.',
+            'kelas.in' => 'Kelas yang dipilih tidak berada dalam lingkup binaan Anda.',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'nisn' => $request->nisn,
+            'kelas' => $request->kelas,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
+        ];
+
+        if ($request->filled('email')) {
+            $data['email'] = $request->email;
+        }
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $siswa->update($data);
+
+        return redirect()->back()->with('success', "Data siswa '{$siswa->name}' berhasil diperbarui.");
+    }
+
+    /**
+     * Hapus Siswa (CRUD Siswa).
+     */
+    public function siswaDestroy($id)
+    {
+        $siswa = $this->applySiswaScope(User::where('role', 'siswa'))->findOrFail($id);
+        $nama = $siswa->name;
+
+        // Hapus relasi data tes dan pilihan yang terkait
+        $siswa->careerAnswers()->delete();
+        $siswa->careerResult()->delete();
+        $siswa->pilihanSetelahLulus()->delete();
+        $siswa->delete();
+
+        return redirect()->back()->with('success', "Data siswa '{$nama}' berhasil dihapus dari sistem.");
+    }
+
+    /**
      * Halaman Hasil Tes Minat Karier (RIASEC).
      */
     public function hasilTes(Request $request)
     {
-        $query = CareerResult::with(['user.pilihanSetelahLulus']);
+        $query = $this->applyUserRelationScope(CareerResult::with(['user.pilihanSetelahLulus']));
 
         // Filter Kelas
         if ($request->filled('kelas') && $request->kelas !== 'Semua') {
@@ -228,12 +383,7 @@ class AdminController extends Controller
 
         $hasilList = $query->orderBy('completed_at', 'desc')->paginate(20)->withQueryString();
 
-        $kelasList = User::where('role', 'siswa')
-            ->whereNotNull('kelas')
-            ->distinct()
-            ->pluck('kelas')
-            ->sort()
-            ->values();
+        $kelasList = $this->getKelasListForUser();
 
         $dominantTypes = ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprising', 'Conventional'];
 
@@ -245,7 +395,7 @@ class AdminController extends Controller
      */
     public function rencanaSiswa(Request $request)
     {
-        $query = PilihanSetelahLulus::with(['user.careerResult']);
+        $query = $this->applyUserRelationScope(PilihanSetelahLulus::with(['user.careerResult']));
 
         if ($request->filled('rencana') && $request->rencana !== 'Semua') {
             $query->where('rencana', $request->rencana);
@@ -295,6 +445,95 @@ class AdminController extends Controller
             ->values();
 
         return view('admin.rencana', compact('pilihan', 'kampusList', 'prodiList', 'jenjangList'));
+    }
+
+    /**
+     * Halaman Pengelolaan Akun Guru BK & Mapping Kelas Binaan.
+     */
+    public function guruBkIndex(Request $request)
+    {
+        $guruBkList = User::where('role', 'guru_bk')->orderBy('name')->get();
+
+        $availableClasses = User::where('role', 'siswa')
+            ->whereNotNull('kelas')
+            ->distinct()
+            ->pluck('kelas')
+            ->sort()
+            ->values();
+
+        $classCounts = User::where('role', 'siswa')
+            ->whereNotNull('kelas')
+            ->groupBy('kelas')
+            ->selectRaw('kelas, count(*) as count')
+            ->pluck('count', 'kelas');
+
+        $totalSiswaSekolah = User::where('role', 'siswa')->count();
+
+        return view('admin.guru_bk', compact('guruBkList', 'availableClasses', 'classCounts', 'totalSiswaSekolah'));
+    }
+
+    /**
+     * Simpan Akun Guru BK Baru.
+     */
+    public function guruBkStore(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6',
+            'binaan_kelas' => 'nullable|array',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'guru_bk',
+            'binaan_kelas' => $request->binaan_kelas ?? [],
+        ]);
+
+        return redirect()->route('admin.guru-bk')->with('success', 'Akun Guru BK berhasil dibuat.');
+    }
+
+    /**
+     * Update Akun Guru BK & Class Mapping.
+     */
+    public function guruBkUpdate(Request $request, $id)
+    {
+        $user = User::where('role', 'guru_bk')->findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6',
+            'binaan_kelas' => 'nullable|array',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'binaan_kelas' => $request->binaan_kelas ?? [],
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.guru-bk')->with('success', 'Data Guru BK berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus Akun Guru BK.
+     */
+    public function guruBkDestroy($id)
+    {
+        $user = User::where('role', 'guru_bk')->findOrFail($id);
+        $nama = $user->name;
+        $user->delete();
+
+        return redirect()->route('admin.guru-bk')->with('success', "Akun Guru BK '{$nama}' berhasil dihapus.");
     }
 
     /**
@@ -408,17 +647,13 @@ class AdminController extends Controller
      */
     public function laporan(Request $request)
     {
-        $kelasList = User::where('role', 'siswa')
-            ->whereNotNull('kelas')
-            ->distinct()
-            ->pluck('kelas')
-            ->sort()
-            ->values();
+        $kelasList = $this->getKelasListForUser();
 
-        $totalSiswa = User::where('role', 'siswa')->count();
-        $totalTes = CareerResult::count();
-        $totalRencana = PilihanSetelahLulus::count();
-        $totalLengkap = User::where('role', 'siswa')->has('careerResult')->has('pilihanSetelahLulus')->count();
+        $siswaBase = $this->applySiswaScope(User::where('role', 'siswa'));
+        $totalSiswa = (clone $siswaBase)->count();
+        $totalTes = $this->applyUserRelationScope(CareerResult::query())->count();
+        $totalRencana = $this->applyUserRelationScope(PilihanSetelahLulus::query())->count();
+        $totalLengkap = (clone $siswaBase)->has('careerResult')->has('pilihanSetelahLulus')->count();
 
         return view('admin.laporan', compact('kelasList', 'totalSiswa', 'totalTes', 'totalRencana', 'totalLengkap'));
     }
@@ -428,8 +663,7 @@ class AdminController extends Controller
      */
     public function exportLaporan(Request $request)
     {
-        $query = User::where('role', 'siswa')
-            ->with(['pilihanSetelahLulus', 'careerResult']);
+        $query = $this->applySiswaScope(User::where('role', 'siswa')->with(['pilihanSetelahLulus', 'careerResult']));
 
         if ($request->filled('kelas') && $request->kelas !== 'Semua') {
             $query->where('kelas', $request->kelas);

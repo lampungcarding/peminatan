@@ -242,8 +242,7 @@
 
         {{-- OFFICIAL KOP SURAT (PRINT ONLY) --}}
         <div class="print-kop-wrapper d-none d-print-block">
-            <div class="print-kop-instansi">
-                KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI
+            <div class="print-kop-instansi">Pemerintah Provinsi Lampung
             </div>
             <div class="print-kop-sekolah">
                 {{ \App\Models\Setting::get('nama_sekolah', 'SMK NEGERI 1 BANDAR LAMPUNG') }}
@@ -284,25 +283,23 @@
         </div>
 
         {{-- HOLLAND CODE HERO BANNER --}}
-        <div class="card-pro holland-hero-card p-4 p-md-5 mb-4 text-center" style="background: linear-gradient(135deg, #0b1329 0%, #1e3a8a 100%); color:#ffffff; border:none; position:relative; overflow:hidden;">
-            <div class="glow-circle" style="position:absolute; right:-50px; top:-50px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, rgba(59,130,246,0.25) 0%, transparent 70%); pointer-events:none;"></div>
-            
+        <div class="card-pro holland-hero-card p-4 p-md-5 mb-4 text-center" style="background: #1F355F; color:#ffffff; border:1px solid #1F355F; border-radius: 12px; position:relative; overflow:hidden; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
             <div class="position-relative">
-                <span class="badge hero-badge" style="background: rgba(255,255,255,0.18); backdrop-filter:blur(4px); font-size:0.78rem; font-weight:700; padding:6px 14px; border-radius:var(--radius-full); text-transform: uppercase; letter-spacing: 0.05em;">
+                <span class="badge hero-badge" style="background: rgba(255, 255, 255, 0.12); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.18); font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
                     Profil Minat Holland / RIASEC
                 </span>
 
                 <div class="my-3">
-                    <div class="hero-code-title" style="font-size: 0.88rem; color: #93c5fd; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">
+                    <div class="hero-code-title" style="font-size: 0.88rem; color: #E4E7EC; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">
                         Holland Code Kamu
                     </div>
-                    <div class="hero-code-val" style="font-size: 3.2rem; font-weight: 900; letter-spacing: 0.15em; font-family: monospace; color: #ffffff; text-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+                    <div class="hero-code-val" style="font-size: 3.2rem; font-weight: 800; letter-spacing: 0.15em; font-family: monospace; color: #ffffff;">
                         {{ $careerResult->holland_code }}
                     </div>
                 </div>
 
-                <div class="hero-dominant-pill d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill" style="background: rgba(255,255,255,0.12); font-size: 0.92rem; font-weight: 700;">
-                    <i class="bi bi-award-fill text-warning"></i>
+                <div class="hero-dominant-pill d-inline-flex align-items-center gap-2 px-3 py-2" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); font-size: 0.92rem; font-weight: 600; border-radius: 6px;">
+                    <i class="bi bi-award text-warning"></i>
                     <span>Tipe Dominan: {{ $careerResult->dominant_type }}</span>
                     @if($careerResult->secondary_types)
                         <span class="text-white-50 d-print-inline">• Didukung {{ $careerResult->secondary_types }}</span>
@@ -334,10 +331,10 @@
 
         {{-- REKOMENDASI HASIL ANALISIS KOLABORASI (RIASEC + CAREER ANCHORS) --}}
         @if(!empty($collaborationReport))
-        <div class="card-pro p-4 mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #ffffff; border-radius: var(--radius-xl); border: 2px solid #6366f1;">
+        <div class="card-pro p-4 mb-4" style="background: #1F355F; color: #ffffff; border-radius: 12px; border: 1px solid #1F355F;">
             <div class="d-flex align-items-center gap-2 mb-3">
-                <span class="fs-4">🔮</span>
-                <h2 style="font-size: 1.2rem; font-weight: 800; color: #a5b4fc; margin: 0;">
+                <i class="bi bi-diagram-3 text-white fs-4"></i>
+                <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; margin: 0;">
                     Rekomendasi Hasil Analisis Kolaborasi (RIASEC + Career Anchors)
                 </h2>
             </div>
@@ -628,14 +625,14 @@
         </div>
 
         {{-- CALL TO ACTION BERIKUTNYA (SCREEN ONLY) --}}
-        <div class="card-pro p-4 p-md-5 mb-4 text-center d-print-none" style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border: 1.5px dashed #3b82f6;">
-            <div style="font-size: 0.78rem; font-weight: 700; color: #2563eb; text-transform: uppercase;">
+        <div class="card-pro p-4 p-md-5 mb-4 text-center d-print-none" style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 12px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
+            <div style="font-size: 0.78rem; font-weight: 600; color: #3157A4; text-transform: uppercase;">
                 Langkah Selanjutnya
             </div>
-            <h3 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-top: 4px; margin-bottom: 8px;">
+            <h3 style="font-size: 1.35rem; font-weight: 700; color: #1F2937; margin-top: 4px; margin-bottom: 8px;">
                 Tentukan Pilihan Nyata Rencanamu Setelah Lulus
             </h3>
-            <p style="font-size: 0.88rem; color: #475569; max-width: 600px; margin: 0 auto 20px;">
+            <p style="font-size: 0.88rem; color: #667085; max-width: 600px; margin: 0 auto 20px;">
                 Gunakan hasil minat ini untuk memantapkan pilihanmu, lalu tentukan apakah kamu akan berkuliah, bekerja, atau berwirausaha.
             </p>
 

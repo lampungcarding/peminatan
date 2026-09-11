@@ -25,6 +25,7 @@ class User extends Authenticatable
         'role',
         'nisn',
         'kelas',
+        'binaan_kelas',
         'tempat_lahir',
         'tanggal_lahir',
     ];
@@ -49,6 +50,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'binaan_kelas' => 'array',
         ];
     }
 
@@ -61,11 +63,38 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is guru BK.
+     */
+    public function isGuruBk(): bool
+    {
+        return $this->role === 'guru_bk';
+    }
+
+    /**
      * Check if user is siswa.
      */
     public function isSiswa(): bool
     {
         return $this->role === 'siswa';
+    }
+
+    /**
+     * Get array of binaan_kelas for Guru BK.
+     */
+    public function getKelasBinaanArrayAttribute(): array
+    {
+        $binaan = $this->binaan_kelas;
+        if (is_array($binaan)) {
+            return array_values(array_filter($binaan));
+        }
+        if (is_string($binaan) && !empty($binaan)) {
+            $decoded = json_decode($binaan, true);
+            if (is_array($decoded)) {
+                return array_values(array_filter($decoded));
+            }
+            return array_map('trim', explode(',', $binaan));
+        }
+        return [];
     }
 
     /**

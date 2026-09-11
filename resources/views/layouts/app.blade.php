@@ -22,29 +22,30 @@
 
     <style>
         :root {
-            --brand-primary: #2563eb;
-            --brand-primary-hover: #1d4ed8;
-            --brand-primary-light: #eff6ff;
-            --brand-dark: #0f172a;
-            --brand-navy: #0b1329;
-            --kuliah-color: #2563eb;
-            --bekerja-color: #d97706;
-            --wirausaha-color: #7c3aed;
-            --surface-ground: #f8fafc;
+            --brand-primary: #3157A4;
+            --brand-primary-hover: #28498B;
+            --brand-primary-dark: #243F78;
+            --brand-primary-light: #EFF4FB;
+            --brand-dark: #1F2937;
+            --brand-navy: #1F355F;
+            --kuliah-color: #3157A4;
+            --bekerja-color: #B7791F;
+            --wirausaha-color: #5925DC;
+            --surface-ground: #F7F8FA;
             --surface-card: #ffffff;
-            --border-subtle: #e2e8f0;
-            --border-focus: #93c5fd;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
+            --border-subtle: #E4E7EC;
+            --border-focus: #B2CCFF;
+            --text-primary: #1F2937;
+            --text-secondary: #667085;
+            --text-muted: #98A2B3;
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
             --radius-full: 9999px;
-            --shadow-subtle: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
-            --shadow-card: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
-            --shadow-elevated: 0 12px 32px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+            --shadow-subtle: 0 1px 2px rgba(16, 24, 40, 0.04);
+            --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+            --shadow-elevated: 0 4px 6px -1px rgba(16, 24, 40, 0.06), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
         }
 
         * {
@@ -66,9 +67,7 @@
 
         /* ===== TOP NAVBAR ===== */
         .student-topbar {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            background: #ffffff;
             border-bottom: 1px solid var(--border-subtle);
             position: sticky;
             top: 0;
@@ -81,19 +80,18 @@
             width: 40px;
             height: 40px;
             border-radius: var(--radius-md);
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            background: #1F355F;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffffff;
             font-size: 1.25rem;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
             flex-shrink: 0;
         }
 
         .brand-school-name {
             font-size: 0.88rem;
-            font-weight: 800;
+            font-weight: 700;
             color: var(--brand-dark);
             line-height: 1.2;
             letter-spacing: -0.01em;
@@ -108,30 +106,61 @@
             gap: 4px;
         }
 
+        /* Desktop Nav Link Style (Point 8 & 9) */
+        .nav-app-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #667085;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+        .nav-app-link i {
+            color: #667085;
+            font-size: 1rem;
+        }
+        .nav-app-link:hover {
+            color: #1F2937;
+            background: #F7F8FA;
+        }
+        .nav-app-link.active {
+            color: #3157A4;
+            font-weight: 600;
+            background: #F0F4FA;
+        }
+        .nav-app-link.active i {
+            color: #3157A4;
+        }
+
         .student-profile-chip {
             display: flex;
             align-items: center;
             gap: 10px;
             background: #ffffff;
             border: 1px solid var(--border-subtle);
-            padding: 5px 12px 5px 6px;
-            border-radius: var(--radius-full);
+            padding: 4px 12px 4px 6px;
+            border-radius: 6px;
             box-shadow: var(--shadow-subtle);
             text-decoration: none;
             color: var(--text-primary);
         }
 
         .student-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-            color: #4338ca;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            background: #EFF4FB;
+            color: #3157A4;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
             font-size: 0.82rem;
+            border: 1px solid #D0D5DD;
         }
 
         .student-chip-info {
@@ -152,12 +181,12 @@
         .student-chip-class {
             font-size: 0.68rem;
             font-weight: 600;
-            color: #2563eb;
+            color: #3157A4;
         }
 
         /* ===== MAIN CONTAINER ===== */
         .student-main-content {
-            padding: 24px 0 96px; /* extra bottom padding on mobile for bottom bar */
+            padding: 24px 0 96px;
         }
 
         @media (min-width: 768px) {
@@ -166,18 +195,18 @@
             }
         }
 
-        /* ===== PRO CARDS ===== */
+        /* ===== PRO CARDS (Point 2 & 5) ===== */
         .card-pro {
             background: var(--surface-card);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-card);
             overflow: hidden;
-            transition: all 0.25s ease;
+            transition: all 0.2s ease;
         }
 
         .card-pro-header {
-            padding: 18px 22px;
+            padding: 16px 20px;
             border-bottom: 1px solid var(--border-subtle);
             background: #ffffff;
             display: flex;
@@ -186,66 +215,66 @@
         }
 
         .card-pro-body {
-            padding: 22px;
+            padding: 20px;
         }
 
-        /* ===== BUTTONS & TACTILE TOUCH ===== */
+        /* ===== BUTTONS & TACTILE TOUCH (Point 3) ===== */
         .btn-brand-primary {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            background: #3157A4;
             color: #ffffff;
-            border: none;
-            font-weight: 700;
-            font-size: 0.92rem;
-            padding: 12px 24px;
-            border-radius: var(--radius-md);
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+            border: 1px solid #3157A4;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.15s ease;
             text-decoration: none;
-            min-height: 46px; /* mobile tap target rule */
+            min-height: 42px;
         }
 
         .btn-brand-primary:hover {
-            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            background: #28498B;
+            border-color: #28498B;
             color: #ffffff;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
         }
 
         .btn-brand-primary:active {
-            transform: scale(0.98);
+            background: #243F78;
+            border-color: #243F78;
         }
 
         .btn-brand-outline {
             background: #ffffff;
-            color: var(--text-secondary);
+            color: #667085;
             border: 1px solid var(--border-subtle);
             font-weight: 600;
             font-size: 0.88rem;
-            padding: 11px 20px;
-            border-radius: var(--radius-md);
+            padding: 9px 18px;
+            border-radius: 8px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s ease;
             text-decoration: none;
-            min-height: 46px;
+            min-height: 42px;
         }
 
         .btn-brand-outline:hover {
-            background: #f8fafc;
-            color: var(--brand-dark);
-            border-color: #cbd5e1;
+            background: #F7F8FA;
+            color: #3157A4;
+            border-color: #D0D5DD;
         }
 
         .btn-brand-outline:active {
-            transform: scale(0.98);
+            background: #F0F4FA;
         }
 
         /* ===== MOBILE BOTTOM NAVIGATION BAR ===== */
@@ -255,16 +284,14 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 68px;
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            height: 64px;
+            background: #ffffff;
             border-top: 1px solid var(--border-subtle);
             z-index: 1050;
             padding: 0 12px calc(env(safe-area-inset-bottom, 0px));
             justify-content: space-around;
             align-items: center;
-            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 -2px 8px rgba(16, 24, 40, 0.04);
         }
 
         .mobile-nav-link {
@@ -273,26 +300,28 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            color: #94a3b8;
+            color: #667085;
             font-size: 0.68rem;
-            font-weight: 600;
+            font-weight: 500;
             gap: 4px;
             padding: 6px 14px;
-            border-radius: var(--radius-md);
-            transition: all 0.2s;
+            border-radius: 6px;
+            transition: all 0.15s ease;
         }
 
         .mobile-nav-link i {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             line-height: 1;
+            color: #667085;
         }
 
         .mobile-nav-link.active {
-            color: var(--brand-primary);
+            color: #3157A4;
+            font-weight: 600;
         }
 
-        .mobile-nav-link:active {
-            transform: scale(0.92);
+        .mobile-nav-link.active i {
+            color: #3157A4;
         }
 
         @media (max-width: 768px) {
@@ -301,30 +330,85 @@
             }
         }
 
-        /* ===== BADGES ===== */
+        /* ===== BADGES (Point 4) ===== */
         .badge-pill-soft {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 5px 12px;
-            border-radius: var(--radius-full);
+            padding: 4px 10px;
+            border-radius: 6px;
             font-size: 0.78rem;
-            font-weight: 700;
+            font-weight: 600;
+            border: 1px solid transparent;
         }
 
-        .badge-kuliah-soft { background: #dbeafe; color: #1d4ed8; }
-        .badge-bekerja-soft { background: #fef3c7; color: #b45309; }
-        .badge-wirausaha-soft { background: #ede9fe; color: #6d28d9; }
-        .badge-verified-soft { background: #dcfce7; color: #15803d; }
+        .badge-kuliah-soft { background: #EFF4FB; color: #3157A4; border-color: #D0D5DD; }
+        .badge-bekerja-soft { background: #FFF7E6; color: #8A6116; border-color: #F1D99B; }
+        .badge-wirausaha-soft { background: #F4F3FF; color: #5925DC; border-color: #D9D6FE; }
+        .badge-verified-soft { background: #F0FDF4; color: #276749; border-color: #B7E4C7; }
+
+        /* ===== BOOTSTRAP OVERRIDES FOR INSTITUTIONAL PALETTE ===== */
+        .bg-primary { background-color: #3157A4 !important; }
+        .text-primary { color: #3157A4 !important; }
+        .border-primary { border-color: #3157A4 !important; }
+
+        .btn-primary {
+            background-color: #3157A4 !important;
+            border-color: #3157A4 !important;
+            color: #ffffff !important;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05) !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+        }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+            background-color: #28498B !important;
+            border-color: #28498B !important;
+            color: #ffffff !important;
+        }
+
+        .btn-outline-primary {
+            color: #3157A4 !important;
+            border-color: #E4E7EC !important;
+            background-color: #ffffff !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+        }
+        .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+            background-color: #F0F4FA !important;
+            color: #28498B !important;
+            border-color: #3157A4 !important;
+        }
+
+        .btn-warning {
+            background-color: #FFF7E6 !important;
+            border-color: #F1D99B !important;
+            color: #8A6116 !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+        }
+        .btn-warning:hover {
+            background-color: #FEF0C7 !important;
+            border-color: #F1D99B !important;
+            color: #7A520C !important;
+        }
+
+        .bg-success-subtle { background-color: #F0FDF4 !important; color: #276749 !important; border: 1px solid #B7E4C7 !important; }
+        .bg-warning-subtle { background-color: #FFF7E6 !important; color: #8A6116 !important; border: 1px solid #F1D99B !important; }
+        .bg-primary-subtle { background-color: #EFF4FB !important; color: #3157A4 !important; border: 1px solid #D0D5DD !important; }
+        .bg-secondary-subtle { background-color: #F2F4F7 !important; color: #344054 !important; border: 1px solid #E4E7EC !important; }
+
+        .progress-bar.bg-primary {
+            background-color: #3157A4 !important;
+        }
 
         /* ===== FLOATING FORM INPUTS ===== */
         .form-control-pro {
             width: 100%;
-            height: 48px;
+            height: 46px;
             padding: 10px 16px;
-            border-radius: var(--radius-md);
-            border: 1.5px solid var(--border-subtle);
-            font-size: 0.92rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+            font-size: 0.9rem;
             font-weight: 500;
             color: var(--brand-dark);
             background: #ffffff;
@@ -334,11 +418,11 @@
 
         .form-control-pro:focus {
             border-color: var(--brand-primary);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            box-shadow: 0 0 0 3px rgba(49, 87, 164, 0.12);
         }
 
         .form-control-pro::placeholder {
-            color: #94a3b8;
+            color: #98A2B3;
             font-weight: 400;
         }
 
@@ -406,19 +490,19 @@
                 {{-- Desktop Navigation Links --}}
                 @if(auth()->user()->isSiswa())
                 <nav class="d-none d-lg-flex align-items-center gap-1">
-                    <a href="{{ route('siswa.dashboard') }}" class="btn-brand-outline py-2 px-3 border-0 {{ request()->routeIs('siswa.dashboard') ? 'text-primary fw-bold bg-light' : '' }}">
+                    <a href="{{ route('siswa.dashboard') }}" class="nav-app-link {{ request()->routeIs('siswa.dashboard') ? 'active' : '' }}">
                         <i class="bi bi-house-door"></i> Beranda
                     </a>
-                    <a href="{{ route('tes.index') }}" class="btn-brand-outline py-2 px-3 border-0 {{ request()->routeIs('tes.*') ? 'text-primary fw-bold bg-light' : '' }}">
+                    <a href="{{ route('tes.index') }}" class="nav-app-link {{ request()->routeIs('tes.*') ? 'active' : '' }}">
                         <i class="bi bi-lightning-charge"></i> Tes Minat
                     </a>
-                    <a href="{{ route('tes.rekomendasi') }}" class="btn-brand-outline py-2 px-3 border-0 {{ request()->routeIs('tes.rekomendasi') ? 'text-primary fw-bold bg-light' : '' }}">
+                    <a href="{{ route('tes.rekomendasi') }}" class="nav-app-link {{ request()->routeIs('tes.rekomendasi') ? 'active' : '' }}">
                         <i class="bi bi-stars"></i> Rekomendasi
                     </a>
-                    <a href="{{ route('siswa.rencana') }}" class="btn-brand-outline py-2 px-3 border-0 {{ request()->routeIs('siswa.rencana*') ? 'text-primary fw-bold bg-light' : '' }}">
+                    <a href="{{ route('siswa.rencana') }}" class="nav-app-link {{ request()->routeIs('siswa.rencana*') ? 'active' : '' }}">
                         <i class="bi bi-compass"></i> Rencana
                     </a>
-                    <a href="{{ route('siswa.pilihan-saya') }}" class="btn-brand-outline py-2 px-3 border-0 {{ request()->routeIs('siswa.pilihan-saya') ? 'text-primary fw-bold bg-light' : '' }}">
+                    <a href="{{ route('siswa.pilihan-saya') }}" class="nav-app-link {{ request()->routeIs('siswa.pilihan-saya') ? 'active' : '' }}">
                         <i class="bi bi-person-badge"></i> Pilihan Saya
                     </a>
                 </nav>

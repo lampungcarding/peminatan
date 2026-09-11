@@ -126,14 +126,14 @@
         {{-- OFFICIAL DIGITAL PROOF CARD (PRD SECTION 30) --}}
         <div class="card-pro mb-4 p-0 shadow-sm" id="printableCard" style="border: 2px solid #e2e8f0; border-radius: var(--radius-xl); overflow:hidden; background:#ffffff;">
             {{-- Document Header --}}
-            <div class="p-4 text-center border-bottom doc-header" style="background: linear-gradient(135deg, #0b1329 0%, #1e3a8a 100%); color:#ffffff;">
-                <div class="doc-kemen" style="font-size: 0.75rem; font-weight: 700; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px;">
-                    KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN TEKNOLOGI
+            <div class="p-4 text-center border-bottom doc-header" style="background: #1F355F; color:#ffffff;">
+                <div class="doc-kemen" style="font-size: 0.75rem; font-weight: 600; color: #E4E7EC; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px;">
+                    Pemerintah Provinsi Lampung
                 </div>
-                <h1 style="font-size: 1.45rem; font-weight: 900; margin: 0; letter-spacing: -0.01em;">
+                <h1 style="font-size: 1.45rem; font-weight: 700; margin: 0; letter-spacing: -0.01em;">
                     PROFIL PERENCANAAN KARIER & STUDI SISWA
                 </h1>
-                <div class="doc-school" style="font-size: 0.86rem; color: #cbd5e1; margin-top: 4px;">
+                <div class="doc-school" style="font-size: 0.86rem; color: #E4E7EC; margin-top: 4px;">
                     {{ \App\Models\Setting::get('nama_sekolah', 'SMK Negeri 1 Bandar Lampung') }} • Tahun Ajaran {{ \App\Models\Setting::get('tahun_ajaran', '2024/2025') }}
                 </div>
             </div>

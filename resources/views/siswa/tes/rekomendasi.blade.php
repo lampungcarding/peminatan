@@ -6,28 +6,21 @@
 <style>
     /* Styling khusus Rekomendasi Terpadu */
     .recom-hero {
-        background: linear-gradient(135deg, #0b1329 0%, #1e3a8a 50%, #2563eb 100%);
+        background: #1F355F;
         color: #ffffff;
-        border-radius: var(--radius-xl);
+        border-radius: 12px;
         position: relative;
         overflow: hidden;
+        border: 1px solid #1F355F;
     }
     .recom-hero-decor {
-        position: absolute;
-        right: -30px;
-        top: -30px;
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(59,130,246,0.3) 0%, transparent 70%);
-        pointer-events: none;
+        display: none;
     }
     .analysis-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1.5px solid #bfdbfe;
-        border-radius: var(--radius-lg);
-        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+        background: #ffffff;
+        border: 1px solid #E4E7EC;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
     }
     .nav-pill-custom .nav-link {
         border-radius: var(--radius-md);
@@ -543,14 +536,14 @@
         </div>
 
         {{-- CALL TO ACTION BAWAH --}}
-        <div class="card-pro p-4 p-md-5 mb-4 text-center mt-5" style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border: 1.5px dashed #3b82f6;">
-            <div style="font-size: 0.78rem; font-weight: 700; color: #2563eb; text-transform: uppercase;">
+        <div class="card-pro p-4 p-md-5 mb-4 text-center mt-5" style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 12px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
+            <div style="font-size: 0.78rem; font-weight: 600; color: #3157A4; text-transform: uppercase;">
                 Langkah Eksekusi Karier
             </div>
-            <h3 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-top: 4px; margin-bottom: 8px;">
+            <h3 style="font-size: 1.35rem; font-weight: 700; color: #1F2937; margin-top: 4px; margin-bottom: 8px;">
                 Sudah Menemukan Arah yang Paling Pas?
             </h3>
-            <p style="font-size: 0.88rem; color: #475569; max-width: 600px; margin: 0 auto 20px;">
+            <p style="font-size: 0.88rem; color: #667085; max-width: 600px; margin: 0 auto 20px;">
                 Kunci rencanamu sekarang juga agar terekam pada data bimbingan konseling sekolah dan laporan peminatan studi kelas 12.
             </p>
             <div class="d-flex flex-wrap justify-content-center gap-3">

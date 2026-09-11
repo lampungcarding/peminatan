@@ -65,7 +65,7 @@ class AuthController extends Controller
      */
     protected function redirectByRole($user)
     {
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() || $user->isGuruBk()) {
             return redirect()->route('admin.dashboard');
         }
 

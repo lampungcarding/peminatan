@@ -11,9 +11,9 @@ class RoleMiddleware
     /**
      * Handle an incoming request.
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!$request->user() || $request->user()->role !== $role) {
+        if (!$request->user() || !in_array($request->user()->role, $roles)) {
             abort(403, 'Akses ditolak.');
         }
 

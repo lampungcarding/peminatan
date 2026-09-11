@@ -35,10 +35,21 @@
             --text-muted: #64748b;
         }
 
-        * {
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         body {
@@ -53,10 +64,10 @@
         .admin-sidebar {
             width: 250px;
             background-color: var(--sidebar-bg);
-            min-height: 100vh;
+            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             position: fixed;
             top: 0;
             left: 0;
@@ -64,14 +75,16 @@
             z-index: 1000;
             transition: all 0.3s ease;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
         .sidebar-brand {
-            padding: 24px 20px 20px;
+            padding: 20px 18px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
         }
 
         .sidebar-brand .brand-icon {
@@ -101,29 +114,53 @@
             margin-top: 2px;
         }
 
-        .sidebar-menu {
-            padding: 20px 14px;
-            flex-grow: 1;
+        .sidebar-scrollable {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            overscroll-behavior: contain;
+        }
+
+        /* Sleek custom scrollbar for sidebar */
+        .sidebar-scrollable::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar-scrollable::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-scrollable::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.16);
+            border-radius: 4px;
+        }
+        .sidebar-scrollable::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.32);
+        }
+
+        .sidebar-menu {
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .sidebar-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
+            gap: 11px;
+            padding: 9px 14px;
             border-radius: 8px;
             color: #94a3b8;
             text-decoration: none;
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             font-weight: 500;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
         .sidebar-item i {
-            font-size: 1.15rem;
+            font-size: 1.12rem;
             width: 20px;
             text-align: center;
         }
@@ -140,8 +177,11 @@
         }
 
         .sidebar-footer {
-            padding: 20px 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+            padding: 14px 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background-color: var(--sidebar-bg);
+            z-index: 10;
         }
 
         .sidebar-logout-btn {
@@ -174,7 +214,10 @@
             display: flex;
             flex-direction: column;
             width: calc(100% - 250px);
+            max-width: calc(100% - 250px);
+            min-width: 0;
             background-color: var(--bg-canvas);
+            box-sizing: border-box;
         }
 
         /* ===== TOP NAVBAR ===== */
@@ -189,12 +232,16 @@
             position: sticky;
             top: 0;
             z-index: 99;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .topbar-left {
             display: flex;
             align-items: center;
             gap: 16px;
+            min-width: 0;
         }
 
         .menu-toggle-btn {
@@ -207,6 +254,7 @@
             border-radius: 6px;
             display: flex;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .menu-toggle-btn:hover {
@@ -217,6 +265,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-shrink: 0;
         }
 
         .user-avatar-circle {
@@ -229,6 +278,7 @@
             align-items: center;
             justify-content: center;
             font-size: 1.15rem;
+            flex-shrink: 0;
         }
 
         .user-details {
@@ -240,17 +290,23 @@
             font-size: 0.88rem;
             font-weight: 700;
             color: var(--text-dark);
+            white-space: nowrap;
         }
 
         .user-details .user-role {
             font-size: 0.75rem;
             color: var(--text-muted);
+            white-space: nowrap;
         }
 
         /* ===== CONTENT BODY ===== */
         .admin-content-body {
             padding: 28px 32px 48px;
             flex-grow: 1;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
         }
 
         /* ===== PAGE HEADER ===== */
@@ -261,6 +317,9 @@
             margin-bottom: 24px;
             flex-wrap: wrap;
             gap: 12px;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
         }
 
         .page-title-row h1 {
@@ -269,12 +328,14 @@
             color: #0f172a;
             margin: 0;
             letter-spacing: -0.02em;
+            word-break: break-word;
         }
 
         .page-title-row p {
             font-size: 0.88rem;
             color: var(--text-muted);
             margin: 3px 0 0;
+            word-break: break-word;
         }
 
         .date-badge {
@@ -289,6 +350,8 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         /* ===== STAT CARDS ===== */
@@ -302,6 +365,10 @@
             gap: 18px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
             height: 100%;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
@@ -327,11 +394,19 @@
         .stat-icon-bekerja { background-color: #f59e0b; }
         .stat-icon-wirausaha { background-color: #8b5cf6; }
 
+        .stat-info {
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
         .stat-info .stat-label {
             font-size: 0.82rem;
             font-weight: 600;
             color: #475569;
             margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .stat-info .stat-value {
@@ -340,12 +415,16 @@
             line-height: 1.15;
             color: #0f172a;
             letter-spacing: -0.02em;
+            word-break: break-word;
         }
 
         .stat-info .stat-subtext {
             font-size: 0.75rem;
             color: var(--text-muted);
             margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* ===== CHART & TABLE CARDS ===== */
@@ -356,6 +435,10 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
             padding: 24px;
             margin-bottom: 24px;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
         }
 
         .panel-header {
@@ -363,6 +446,11 @@
             align-items: flex-start;
             justify-content: space-between;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
         }
 
         .panel-header h2 {
@@ -370,12 +458,14 @@
             font-weight: 700;
             color: #0f172a;
             margin: 0;
+            word-break: break-word;
         }
 
         .panel-header p {
             font-size: 0.8rem;
             color: var(--text-muted);
             margin: 3px 0 0;
+            word-break: break-word;
         }
 
         /* ===== FILTER BAR ===== */
@@ -389,6 +479,9 @@
             padding: 16px;
             border-radius: 8px;
             border: 1px solid #f1f5f9;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .filter-item label {
@@ -429,6 +522,7 @@
             cursor: pointer;
             height: 38px;
             transition: background-color 0.2s;
+            white-space: nowrap;
         }
 
         .btn-filter:hover {
@@ -449,6 +543,7 @@
             gap: 6px;
             text-decoration: none;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .btn-export-outline:hover {
@@ -460,10 +555,16 @@
         /* ===== TABLE STYLES ===== */
         .table-responsive-custom {
             overflow-x: auto;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
         }
 
         .admin-table {
             width: 100%;
+            max-width: 100%;
             border-collapse: collapse;
             font-size: 0.84rem;
         }
@@ -616,6 +717,35 @@
             .admin-main {
                 margin-left: 0;
                 width: 100%;
+                max-width: 100%;
+                min-width: 0;
+            }
+
+            .admin-topbar {
+                padding: 0 16px;
+            }
+
+            .admin-content-body {
+                padding: 20px 16px 40px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card-custom {
+                padding: 16px;
+                gap: 14px;
+            }
+
+            .panel-card {
+                padding: 16px;
+            }
+
+            .page-title-row h1 {
+                font-size: 1.35rem;
             }
         }
     </style>
@@ -625,17 +755,19 @@
 <body>
     {{-- SIDEBAR --}}
     <aside class="admin-sidebar" id="adminSidebar">
-        <div>
-            <div class="sidebar-brand">
-                <div class="brand-icon">
-                    <i class="bi bi-mortarboard-fill"></i>
-                </div>
-                <div>
-                    <div class="brand-title">Rencana Setelah Lulus</div>
-                    <div class="brand-subtitle">Admin Panel</div>
-                </div>
+        {{-- BRAND (PINNED TOP) --}}
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <i class="bi bi-mortarboard-fill"></i>
             </div>
+            <div>
+                <div class="brand-title">Rencana Setelah Lulus</div>
+                <div class="brand-subtitle">{{ auth()->user()->isGuruBk() ? 'Guru BK Panel' : 'Admin Panel' }}</div>
+            </div>
+        </div>
 
+        {{-- SCROLLABLE MENU (MIDDLE) --}}
+        <div class="sidebar-scrollable">
             <nav class="sidebar-menu">
                 <a href="{{ route('admin.dashboard') }}"
                    class="sidebar-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -644,7 +776,7 @@
                 </a>
 
                 <a href="{{ route('admin.siswa') }}"
-                   class="sidebar-item {{ request()->routeIs('admin.siswa') ? 'active' : '' }}">
+                   class="sidebar-item {{ request()->routeIs('admin.siswa*') ? 'active' : '' }}">
                     <i class="bi bi-people-fill"></i>
                     <span>Data Siswa</span>
                 </a>
@@ -667,11 +799,19 @@
                     <span>Rekomendasi Karier</span>
                 </a>
 
+                @if(auth()->user()->isAdmin())
+                <a href="{{ route('admin.guru-bk') }}"
+                   class="sidebar-item {{ request()->routeIs('admin.guru-bk*') ? 'active' : '' }}">
+                    <i class="bi bi-person-video3"></i>
+                    <span>Pengelolaan Guru BK</span>
+                </a>
+
                 <a href="{{ route('admin.pertanyaan-tes') }}"
                    class="sidebar-item {{ request()->routeIs('admin.pertanyaan-tes*') ? 'active' : '' }}">
                     <i class="bi bi-question-circle-fill"></i>
                     <span>Pertanyaan Tes</span>
                 </a>
+                @endif
 
                 <a href="{{ route('admin.kampus-prodi') }}"
                    class="sidebar-item {{ request()->routeIs('admin.kampus-prodi*') ? 'active' : '' }}">
@@ -685,14 +825,17 @@
                     <span>Laporan & Export</span>
                 </a>
 
+                @if(auth()->user()->isAdmin())
                 <a href="{{ route('admin.pengaturan') }}"
                    class="sidebar-item {{ request()->routeIs('admin.pengaturan*') ? 'active' : '' }}">
                     <i class="bi bi-gear-fill"></i>
                     <span>Pengaturan</span>
                 </a>
+                @endif
             </nav>
         </div>
 
+        {{-- FOOTER WITH LOGOUT (PINNED BOTTOM) --}}
         <div class="sidebar-footer">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
@@ -708,10 +851,19 @@
     <div class="admin-main">
         {{-- TOPBAR --}}
         <header class="admin-topbar">
-            <div class="topbar-left">
+            <div class="topbar-left d-flex align-items-center gap-3">
                 <button class="menu-toggle-btn" id="sidebarToggle" title="Toggle Sidebar">
                     <i class="bi bi-list"></i>
                 </button>
+
+                @if(auth()->user()->isGuruBk())
+                    <div class="d-none d-md-flex align-items-center gap-1">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2" style="font-size:0.8rem; font-weight:600;">
+                            <i class="bi bi-mortarboard me-1"></i> Kelas Binaan:
+                            {{ count(auth()->user()->kelas_binaan_array) > 0 ? implode(', ', auth()->user()->kelas_binaan_array) : 'Semua / Belum di-set' }}
+                        </span>
+                    </div>
+                @endif
             </div>
 
             <div class="topbar-user">
@@ -719,8 +871,8 @@
                     <i class="bi bi-person-fill"></i>
                 </div>
                 <div class="user-details">
-                    <div class="user-name">{{ auth()->user()->name ?? 'admin' }}</div>
-                    <div class="user-role">Administrator</div>
+                    <div class="user-name">{{ auth()->user()->name ?? 'User' }}</div>
+                    <div class="user-role">{{ auth()->user()->isGuruBk() ? 'Guru BK' : 'Administrator' }}</div>
                 </div>
             </div>
         </header>
@@ -731,6 +883,13 @@
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="border-radius:8px;font-size:0.88rem;">
                     <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="border-radius:8px;font-size:0.88rem;">
+                    <i class="bi bi-exclamation-octagon-fill me-2"></i> {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
