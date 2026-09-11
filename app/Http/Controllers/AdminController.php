@@ -643,6 +643,20 @@ class AdminController extends Controller
     }
 
     /**
+     * AJAX pencarian daftar prodi berdasarkan perguruan tinggi untuk panel admin.
+     */
+    public function cariProdi(Request $request)
+    {
+        $request->validate([
+            'pt_id' => ['required', 'string'],
+        ]);
+
+        $results = $this->kipService->getProdiByPT($request->pt_id);
+
+        return response()->json($results);
+    }
+
+    /**
      * Halaman Laporan & Ekspor Data Lengkap Siswa.
      */
     public function laporan(Request $request)

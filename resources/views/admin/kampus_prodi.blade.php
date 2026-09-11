@@ -120,11 +120,10 @@
                 </td>
             </tr>`;
 
-        const modalEl = document.getElementById('modalProdiAdmin');
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const modal = new bootstrap.Modal(document.getElementById('modalProdiAdmin'));
         modal.show();
 
-        fetch('{{ route("admin.cari-prodi", [], false) }}', {
+        fetch('{{ route("admin.cari-prodi") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -133,19 +132,14 @@
             },
             body: JSON.stringify({ pt_id: ptNama })
         })
-        .then(res => {
-            if (!res.ok) throw new Error('HTTP error ' + res.status);
-            return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
-            const list = Array.isArray(data) ? data : Object.values(data);
-            const validList = list.filter(item => typeof item === 'object' && item !== null && item.nama);
-            document.getElementById('modalProdiCount').textContent = `Ditemukan ${validList.length} Program Studi`;
+            document.getElementById('modalProdiCount').textContent = `Ditemukan ${data.length} Program Studi`;
             let html = '';
-            if (validList.length === 0) {
+            if (data.length === 0) {
                 html = '<tr><td colspan="4" class="text-center py-4 text-muted">Tidak ada program studi ditemukan untuk kampus ini.</td></tr>';
             } else {
-                validList.forEach((p, index) => {
+                data.forEach((p, index) => {
                     html += `
                         <tr>
                             <td class="text-center">${index + 1}</td>
@@ -158,8 +152,7 @@
             document.getElementById('modalProdiBody').innerHTML = html;
         })
         .catch(err => {
-            document.getElementById('modalProdiCount').textContent = 'Gagal memuat';
-            document.getElementById('modalProdiBody').innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle me-1"></i> Gagal memuat data dari server KIP Kuliah. Silakan coba beberapa saat lagi.</td></tr>';
+            document.getElementById('modalProdiBody').innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4">Gagal memuat data dari server KIP Kuliah.</td></tr>';
         });
     }
 </script>
