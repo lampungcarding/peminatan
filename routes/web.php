@@ -57,8 +57,8 @@ Route::middleware(['auth', 'role:siswa'])->group(function () {
     Route::post('/siswa/submit', [SiswaController::class, 'submit']); // fallback alias
 });
 
-// Pencarian Kampus & Prodi via KIP Kuliah API (Dapat diakses Siswa, Guru BK, dan Admin)
-Route::middleware(['auth', 'role:siswa,admin,guru_bk'])->group(function () {
+// Pencarian Kampus & Prodi via KIP Kuliah API (Dapat diakses oleh seluruh pengguna yang login)
+Route::middleware('auth')->group(function () {
     Route::post('/siswa/cari-kampus', [SiswaController::class, 'cariKampus'])->name('siswa.cari-kampus');
     Route::post('/siswa/cari-prodi', [SiswaController::class, 'cariProdi'])->name('siswa.cari-prodi');
 });
@@ -88,6 +88,8 @@ Route::middleware(['auth', 'role:admin,guru_bk'])->prefix('admin')->group(functi
 
     // Penjelajah Kampus & Prodi
     Route::get('/kampus-prodi', [AdminController::class, 'kampusProdi'])->name('admin.kampus-prodi');
+    Route::post('/cari-kampus', [SiswaController::class, 'cariKampus'])->name('admin.cari-kampus');
+    Route::post('/cari-prodi', [SiswaController::class, 'cariProdi'])->name('admin.cari-prodi');
 
     // Laporan & Export Komprehensif
     Route::get('/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');

@@ -124,7 +124,7 @@
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         modal.show();
 
-        fetch('{{ route("siswa.cari-prodi", [], false) }}', {
+        fetch('{{ route("admin.cari-prodi", [], false) }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

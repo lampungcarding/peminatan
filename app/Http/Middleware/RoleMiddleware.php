@@ -13,7 +13,14 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!$request->user() || !in_array($request->user()->role, $roles)) {
+        $flatRoles = [];
+        foreach ($roles as $r) {
+            foreach (explode(',', $r) as $sub) {
+                $flatRoles[] = trim($sub);
+            }
+        }
+
+        if (!$request->user() || !in_array($request->user()->role, $flatRoles)) {
             abort(403, 'Akses ditolak.');
         }
 
