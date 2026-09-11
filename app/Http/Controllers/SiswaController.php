@@ -137,7 +137,7 @@ class SiswaController extends Controller
 
         $results = $this->kipService->cariPerguruanTinggi($request->keyword);
 
-        return response()->json($results);
+        return response()->json(array_values($results));
     }
 
     /**
@@ -151,7 +151,7 @@ class SiswaController extends Controller
 
         $results = $this->kipService->getProdiByPT($request->pt_id);
 
-        return response()->json($results);
+        return response()->json(array_values($results));
     }
 
     /**

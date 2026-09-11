@@ -17,43 +17,52 @@ class KipKuliahService
      */
     protected function getSessionAndToken(): array
     {
-        return Cache::remember('kip_kuliah_session_auth', 3600, function () {
-            try {
-                $jar = new CookieJar();
-                $client = new Client([
-                    'cookies' => $jar,
-                    'verify' => false,
-                    'timeout' => 12,
-                    'headers' => [
-                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                        'Accept-Language' => 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-                    ],
-                ]);
+        $cached = Cache::get('kip_kuliah_session_auth');
+        if (!empty($cached['token'])) {
+            return $cached;
+        }
 
-                $response = $client->get($this->baseUrl . '/');
-                $html = (string) $response->getBody();
+        try {
+            $jar = new CookieJar();
+            $client = new Client([
+                'cookies' => $jar,
+                'verify' => false,
+                'connect_timeout' => 5,
+                'timeout' => 8,
+                'curl' => [
+                    CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                ],
+                'headers' => [
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language' => 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+                ],
+            ]);
 
-                $token = null;
-                if (preg_match('/_token:\s*["\']([^"\']+)["\']/', $html, $matches)) {
-                    $token = $matches[1];
-                } elseif (preg_match('/<meta name="csrf-token" content="([^"]+)"/', $html, $matches)) {
-                    $token = $matches[1];
-                }
+            $response = $client->get($this->baseUrl . '/');
+            $html = (string) $response->getBody();
 
-                if ($token) {
-                    return [
-                        'token' => $token,
-                        'jar' => $jar->toArray(),
-                    ];
-                }
-
-                return [];
-            } catch (\Exception $e) {
-                Log::warning('Gagal mengambil token KIP Kuliah: ' . $e->getMessage());
-                return [];
+            $token = null;
+            if (preg_match('/_token:\s*["\']([^"\']+)["\']/', $html, $matches)) {
+                $token = $matches[1];
+            } elseif (preg_match('/<meta name="csrf-token" content="([^"]+)"/', $html, $matches)) {
+                $token = $matches[1];
             }
-        });
+
+            if ($token) {
+                $data = [
+                    'token' => $token,
+                    'jar' => $jar->toArray(),
+                ];
+                Cache::put('kip_kuliah_session_auth', $data, 3600);
+                return $data;
+            }
+
+            return [];
+        } catch (\Exception $e) {
+            Log::warning('Gagal mengambil token KIP Kuliah: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**
@@ -82,7 +91,11 @@ class KipKuliahService
             $client = new Client([
                 'cookies' => $jar,
                 'verify' => false,
-                'timeout' => 15,
+                'connect_timeout' => 5,
+                'timeout' => 10,
+                'curl' => [
+                    CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                ],
                 'headers' => [
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept' => 'application/json, text/javascript, */*; q=0.01',
@@ -122,7 +135,7 @@ class KipKuliahService
 
                 if ($response->getStatusCode() === 200) {
                     $json = json_decode((string) $response->getBody(), true);
-                    return $json['data'] ?? [];
+                    return array_values($json['data'] ?? []);
                 }
 
                 return $this->fallbackSearch($keyword);
@@ -184,7 +197,7 @@ class KipKuliahService
         }
 
         usort($perguruanTinggi, fn($a, $b) => strcmp($a['nama'], $b['nama']));
-        return array_slice($perguruanTinggi, 0, 30);
+        return array_values(array_slice($perguruanTinggi, 0, 30));
     }
 
     /**
@@ -237,7 +250,7 @@ class KipKuliahService
         }
 
         usort($prodi, fn($a, $b) => strcmp($a['nama'], $b['nama']));
-        return $prodi;
+        return array_values($prodi);
     }
 
     /**
@@ -274,18 +287,73 @@ class KipKuliahService
     {
         $kw = strtolower(trim($keyword));
         $all = [
+            // Politeknik Negeri Lampung (Lengkap 31 Prodi Resmi)
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Agribisnis Pangan', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik Sekali'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Agribisnis Peternakan', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Akuntansi Bisnis Digital', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik Sekali'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Akuntansi Perpajakan', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik Sekali'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Budidaya Perikanan', 'jenjang' => 'D3', 'akreditasi_prodi' => 'B'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Gizi Klinis', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Terakreditasi Pertama'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Hortikultura', 'jenjang' => 'D3', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Mekanisasi Pertanian', 'jenjang' => 'D3', 'akreditasi_prodi' => 'B'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Pengelolaan Agribisnis', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Pengelolaan Perhotelan', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Pengembangan Produk Agroindustri', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Pengolahan Patiseri', 'jenjang' => 'D2', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Perikanan Tangkap', 'jenjang' => 'D3', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Produksi Media', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Terakreditasi Sementara'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Produksi dan Manajemen Industri Perkebunan', 'jenjang' => 'D4', 'akreditasi_prodi' => 'B'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Produksi Ternak', 'jenjang' => 'D3', 'akreditasi_prodi' => 'A'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Produksi Tanaman Pangan', 'jenjang' => 'D3', 'akreditasi_prodi' => 'A'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Rekayasa Instrumentasi dan Otomasi', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Rekayasa Keamanan Siber', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Benih', 'jenjang' => 'D3', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Produksi Tanaman Perkebunan', 'jenjang' => 'D3', 'akreditasi_prodi' => 'A'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Produksi Ternak', 'jenjang' => 'D4', 'akreditasi_prodi' => 'B'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Rekayasa Konstruksi Jalan dan Jembatan', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Rekayasa Kimia Industri', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Rekayasa Otomotif', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Pangan', 'jenjang' => 'D3', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Manajemen Informatika', 'jenjang' => 'D3', 'akreditasi_prodi' => 'Baik Sekali'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknik Komputer', 'jenjang' => 'D3', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Pembenihan Ikan', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Pengelolaan Sumberdaya Perairan', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
+
+            // Universitas Lampung
             ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Teknik Informatika', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik Sekali'],
             ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Ilmu Komputer', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Sistem Informasi', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Teknik Elektro', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Teknik Mesin', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Teknik Sipil', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
             ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Pendidikan Dokter', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Farmasi', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik Sekali'],
             ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Manajemen', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Akuntansi', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
             ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Ilmu Hukum', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Ilmu Komunikasi', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Universitas Lampung', 'nama_prodi' => 'Hubungan Internasional', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+
+            // Institut Teknologi Sumatera
             ['nama_pt' => 'Institut Teknologi Sumatera', 'nama_prodi' => 'Teknik Informatika', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik Sekali'],
+            ['nama_pt' => 'Institut Teknologi Sumatera', 'nama_prodi' => 'Sains Data', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik'],
             ['nama_pt' => 'Institut Teknologi Sumatera', 'nama_prodi' => 'Teknik Elektro', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik'],
-            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Manajemen Informatika', 'jenjang' => 'D3', 'akreditasi_prodi' => 'Baik Sekali'],
-            ['nama_pt' => 'Politeknik Negeri Lampung', 'nama_prodi' => 'Teknologi Rekayasa Perangkat Lunak', 'jenjang' => 'D4', 'akreditasi_prodi' => 'Baik'],
-            ['nama_pt' => 'Universitas Bandar Lampung', 'nama_prodi' => 'Sistem Informasi', 'jenjang' => 'S1', 'akreditasi_prodi' => 'A'],
+            ['nama_pt' => 'Institut Teknologi Sumatera', 'nama_prodi' => 'Teknik Biomedis', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik'],
+            ['nama_pt' => 'Institut Teknologi Sumatera', 'nama_prodi' => 'Teknik Sipil', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik Sekali'],
+            ['nama_pt' => 'Institut Teknologi Sumatera', 'nama_prodi' => 'Teknik Geomatika', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik Sekali'],
+            ['nama_pt' => 'Institut Teknologi Sumatera', 'nama_prodi' => 'Arsitektur', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik Sekali'],
+            ['nama_pt' => 'Institut Teknologi Sumatera', 'nama_prodi' => 'Perencanaan Wilayah dan Kota', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Baik Sekali'],
+
+            // Universitas Bandar Lampung
             ['nama_pt' => 'Universitas Bandar Lampung', 'nama_prodi' => 'Informatika', 'jenjang' => 'S1', 'akreditasi_prodi' => 'A'],
-            ['nama_pt' => 'Institut Teknologi Bandung', 'nama_prodi' => 'Informatika', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+            ['nama_pt' => 'Universitas Bandar Lampung', 'nama_prodi' => 'Sistem Informasi', 'jenjang' => 'S1', 'akreditasi_prodi' => 'A'],
+            ['nama_pt' => 'Universitas Bandar Lampung', 'nama_prodi' => 'Teknik Sipil', 'jenjang' => 'S1', 'akreditasi_prodi' => 'A'],
+            ['nama_pt' => 'Universitas Bandar Lampung', 'nama_prodi' => 'Manajemen', 'jenjang' => 'S1', 'akreditasi_prodi' => 'A'],
+            ['nama_pt' => 'Universitas Bandar Lampung', 'nama_prodi' => 'Ilmu Hukum', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
+
+            // Universitas Nasional Terkemuka
+            ['nama_pt' => 'Institut Teknologi Bandung', 'nama_prodi' => 'Teknik Informatika', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
             ['nama_pt' => 'Institut Teknologi Bandung', 'nama_prodi' => 'Sistem dan Teknologi Informasi', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
             ['nama_pt' => 'Universitas Gadjah Mada', 'nama_prodi' => 'Ilmu Komputer', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
             ['nama_pt' => 'Universitas Gadjah Mada', 'nama_prodi' => 'Teknologi Informasi', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
@@ -296,9 +364,9 @@ class KipKuliahService
             ['nama_pt' => 'Universitas Brawijaya', 'nama_prodi' => 'Teknik Informatika', 'jenjang' => 'S1', 'akreditasi_prodi' => 'Unggul'],
         ];
 
-        return array_filter($all, function ($item) use ($kw) {
+        return array_values(array_filter($all, function ($item) use ($kw) {
             return str_contains(strtolower($item['nama_pt']), $kw) || str_contains(strtolower($item['nama_prodi']), $kw);
-        });
+        }));
     }
 
     /**
@@ -319,7 +387,7 @@ class KipKuliahService
             ];
         }
 
-        return $result;
+        return array_values($result);
     }
 
     /**

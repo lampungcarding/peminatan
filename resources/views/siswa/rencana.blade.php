@@ -580,7 +580,7 @@
         spinner.style.display = 'block';
 
         searchTimeout = setTimeout(() => {
-            fetch('{{ route("siswa.cari-kampus") }}', {
+            fetch('{{ route("siswa.cari-kampus", [], false) }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -592,7 +592,8 @@
             .then(res => res.json())
             .then(data => {
                 spinner.style.display = 'none';
-                renderSearchResults(data);
+                const list = Array.isArray(data) ? data : Object.values(data);
+                renderSearchResults(list);
             })
             .catch(err => {
                 spinner.style.display = 'none';
@@ -684,7 +685,7 @@
         document.getElementById('prodiSpinner').style.display = 'block';
         document.getElementById('selectProdi').style.display = 'none';
 
-        fetch('{{ route("siswa.cari-prodi") }}', {
+        fetch('{{ route("siswa.cari-prodi", [], false) }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -695,13 +696,14 @@
         })
         .then(res => res.json())
         .then(data => {
-            prodiData = data;
+            const list = Array.isArray(data) ? data : Object.values(data);
+            prodiData = list.filter(item => typeof item === 'object' && item !== null && item.nama);
             document.getElementById('prodiSpinner').style.display = 'none';
 
             const select = document.getElementById('selectProdi');
-            select.innerHTML = '<option value="">-- Pilih Program Studi (' + data.length + ' Jurusan Tersedia) --</option>';
+            select.innerHTML = '<option value="">-- Pilih Program Studi (' + prodiData.length + ' Jurusan Tersedia) --</option>';
 
-            data.forEach((item, index) => {
+            prodiData.forEach((item, index) => {
                 const option = document.createElement('option');
                 option.value = index;
                 const akred = item.akreditasi ? `[${item.akreditasi}]` : '';

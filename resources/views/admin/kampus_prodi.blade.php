@@ -124,7 +124,7 @@
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         modal.show();
 
-        fetch('{{ route("siswa.cari-prodi") }}', {
+        fetch('{{ route("siswa.cari-prodi", [], false) }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -138,13 +138,14 @@
             return res.json();
         })
         .then(data => {
-            if (!Array.isArray(data)) throw new Error('Format data tidak valid');
-            document.getElementById('modalProdiCount').textContent = `Ditemukan ${data.length} Program Studi`;
+            const list = Array.isArray(data) ? data : Object.values(data);
+            const validList = list.filter(item => typeof item === 'object' && item !== null && item.nama);
+            document.getElementById('modalProdiCount').textContent = `Ditemukan ${validList.length} Program Studi`;
             let html = '';
-            if (data.length === 0) {
+            if (validList.length === 0) {
                 html = '<tr><td colspan="4" class="text-center py-4 text-muted">Tidak ada program studi ditemukan untuk kampus ini.</td></tr>';
             } else {
-                data.forEach((p, index) => {
+                validList.forEach((p, index) => {
                     html += `
                         <tr>
                             <td class="text-center">${index + 1}</td>
