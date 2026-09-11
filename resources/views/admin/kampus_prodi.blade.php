@@ -120,7 +120,8 @@
                 </td>
             </tr>`;
 
-        const modal = new bootstrap.Modal(document.getElementById('modalProdiAdmin'));
+        const modalEl = document.getElementById('modalProdiAdmin');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         modal.show();
 
         fetch('{{ route("siswa.cari-prodi") }}', {
@@ -132,8 +133,12 @@
             },
             body: JSON.stringify({ pt_id: ptNama })
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error('HTTP error ' + res.status);
+            return res.json();
+        })
         .then(data => {
+            if (!Array.isArray(data)) throw new Error('Format data tidak valid');
             document.getElementById('modalProdiCount').textContent = `Ditemukan ${data.length} Program Studi`;
             let html = '';
             if (data.length === 0) {
@@ -152,7 +157,8 @@
             document.getElementById('modalProdiBody').innerHTML = html;
         })
         .catch(err => {
-            document.getElementById('modalProdiBody').innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4">Gagal memuat data dari server KIP Kuliah.</td></tr>';
+            document.getElementById('modalProdiCount').textContent = 'Gagal memuat';
+            document.getElementById('modalProdiBody').innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle me-1"></i> Gagal memuat data dari server KIP Kuliah. Silakan coba beberapa saat lagi.</td></tr>';
         });
     }
 </script>

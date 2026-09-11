@@ -50,15 +50,17 @@ Route::middleware(['auth', 'role:siswa'])->group(function () {
     Route::get('/siswa/rencana', [SiswaController::class, 'rencana']); // fallback alias
     Route::post('/siswa/rencana', [SiswaController::class, 'simpanRencana']); // fallback alias
 
-    // Pencarian Kampus & Prodi via KIP Kuliah API
-    Route::post('/siswa/cari-kampus', [SiswaController::class, 'cariKampus'])->name('siswa.cari-kampus');
-    Route::post('/siswa/cari-prodi', [SiswaController::class, 'cariProdi'])->name('siswa.cari-prodi');
-
     // Konfirmasi & Submit Akhir
     Route::get('/konfirmasi', [SiswaController::class, 'konfirmasi'])->name('siswa.konfirmasi');
     Route::get('/siswa/konfirmasi', [SiswaController::class, 'konfirmasi']); // fallback alias
     Route::post('/submit', [SiswaController::class, 'submit'])->name('siswa.submit');
     Route::post('/siswa/submit', [SiswaController::class, 'submit']); // fallback alias
+});
+
+// Pencarian Kampus & Prodi via KIP Kuliah API (Dapat diakses Siswa, Guru BK, dan Admin)
+Route::middleware(['auth', 'role:siswa,admin,guru_bk'])->group(function () {
+    Route::post('/siswa/cari-kampus', [SiswaController::class, 'cariKampus'])->name('siswa.cari-kampus');
+    Route::post('/siswa/cari-prodi', [SiswaController::class, 'cariProdi'])->name('siswa.cari-prodi');
 });
 
 // Admin & Guru BK Shared Routes (Middleware: auth, role:admin,guru_bk)
