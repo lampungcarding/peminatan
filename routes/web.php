@@ -22,10 +22,17 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Siswa Routes (Middleware: auth)
-Route::middleware('auth')->group(function () {
+// Smart Dashboard Redirect
+Route::middleware('auth')->get('/dashboard', function () {
+    if (auth()->user()->isAdmin() || auth()->user()->isGuruBk()) {
+        return redirect()->route('admin.dashboard');
+    }
+    return redirect()->route('siswa.dashboard');
+})->name('dashboard');
+
+// Siswa Routes (Middleware: auth, role:siswa)
+Route::middleware(['auth', 'role:siswa'])->group(function () {
     // Dashboard & Profil
-    Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
     Route::get('/siswa', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
     Route::get('/pilihan-saya', [SiswaController::class, 'pilihanSaya'])->name('siswa.pilihan-saya');
     Route::get('/profil', [SiswaController::class, 'profil'])->name('siswa.profil');

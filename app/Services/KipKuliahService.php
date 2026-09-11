@@ -44,7 +44,7 @@ class KipKuliahService
                 if ($token) {
                     return [
                         'token' => $token,
-                        'jar' => serialize($jar),
+                        'jar' => $jar->toArray(),
                     ];
                 }
 
@@ -75,7 +75,9 @@ class KipKuliahService
                 return $this->fallbackSearch($keyword);
             }
 
-            $jar = isset($session['jar']) ? unserialize($session['jar']) : new CookieJar();
+            $jar = !empty($session['jar']) && is_array($session['jar'])
+                ? new CookieJar(false, $session['jar'])
+                : new CookieJar();
 
             $client = new Client([
                 'cookies' => $jar,

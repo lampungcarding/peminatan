@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -20,7 +22,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Proses login (mendukung Email atau NISN).
+     * Proses login (mendukung Email atau NISN) dengan Rate Limiting anti-brute force (OWASP A07).
      */
     public function login(Request $request)
     {
@@ -30,6 +32,16 @@ class AuthController extends Controller
         ]);
 
         $loginInput = trim($request->input('email'));
+        $throttleKey = Str::transliterate(Str::lower($loginInput) . '|' . $request->ip());
+
+        // Maksimal 5 percobaan gagal dalam 1 menit
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            return back()->withErrors([
+                'email' => "Terlalu banyak percobaan login yang gagal. Akun/IP Anda ditahan sementara demi keamanan. Silakan coba lagi dalam {$seconds} detik.",
+            ])->onlyInput('email');
+        }
+
         $isEmail = filter_var($loginInput, FILTER_VALIDATE_EMAIL);
 
         $credentials = [
@@ -38,13 +50,20 @@ class AuthController extends Controller
         ];
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
             return $this->redirectByRole(Auth::user());
         }
 
+        // Catat kegagalan login dengan waktu tunggu 60 detik
+        RateLimiter::hit($throttleKey, 60);
+        $attemptsLeft = RateLimiter::remaining($throttleKey, 5);
+
         return back()->withErrors([
-            'email' => 'NISN/Email atau password salah.',
+            'email' => $attemptsLeft > 0
+                ? "NISN/Email atau password salah. (Sisa percobaan login: {$attemptsLeft})"
+                : "NISN/Email atau password salah. Batas percobaan terlampaui, silakan tunggu 60 detik.",
         ])->onlyInput('email');
     }
 

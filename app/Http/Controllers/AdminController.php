@@ -737,7 +737,7 @@ class AdminController extends Controller
                 $statusRencana = $p ? 'Sudah Memilih' : 'Belum Memilih';
                 $statusLengkap = ($cr && $p) ? 'Lengkap' : 'Belum Lengkap';
 
-                fputcsv($file, [
+                $row = [
                     $index + 1,
                     $s->name,
                     $s->nisn ?? '-',
@@ -765,7 +765,9 @@ class AdminController extends Controller
                     $p->keterangan_usaha ?? '-',
                     $statusLengkap,
                     $p && $p->submitted_at ? Carbon::parse($p->submitted_at)->format('d-m-Y H:i') : '-',
-                ]);
+                ];
+
+                fputcsv($file, array_map([$this, 'sanitizeCsvValue'], $row));
             }
 
             fclose($file);
@@ -775,11 +777,31 @@ class AdminController extends Controller
     }
 
     /**
-     * Reset pilihan rencana siswa.
+     * Sanitasi nilai sel untuk mitigasi CSV Formula Injection (OWASP A03).
+     * Mencegah karakter formula (=, +, -, @, tab, cr) dieksekusi oleh Microsoft Excel/Calc.
+     */
+    protected function sanitizeCsvValue(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '-';
+        }
+
+        $str = (string) $value;
+        $firstChar = substr($str, 0, 1);
+
+        if (in_array($firstChar, ['=', '+', '-', '@', "\t", "\r"])) {
+            return "'" . $str;
+        }
+
+        return $str;
+    }
+
+    /**
+     * Reset pilihan rencana siswa (dengan validasi hak akses scope Guru BK).
      */
     public function resetPilihan($id)
     {
-        $pilihan = PilihanSetelahLulus::findOrFail($id);
+        $pilihan = $this->applyUserRelationScope(PilihanSetelahLulus::query())->findOrFail($id);
         $namaSiswa = $pilihan->user->name ?? 'Siswa';
         $pilihan->delete();
 
@@ -787,11 +809,11 @@ class AdminController extends Controller
     }
 
     /**
-     * Reset hasil tes RIASEC siswa (agar siswa dapat tes ulang).
+     * Reset hasil tes RIASEC siswa (dengan validasi hak akses scope Guru BK).
      */
     public function resetTes($userId)
     {
-        $user = User::findOrFail($userId);
+        $user = $this->applySiswaScope(User::where('role', 'siswa'))->findOrFail($userId);
         if ($user->careerResult) {
             $user->careerResult->delete();
         }
