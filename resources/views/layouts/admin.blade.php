@@ -220,83 +220,293 @@
             box-sizing: border-box;
         }
 
-        /* ===== TOP NAVBAR ===== */
+        /* ===== TOP NAVBAR ENHANCED ===== */
         .admin-topbar {
-            height: 64px;
-            background: #ffffff;
-            border-bottom: 1px solid var(--card-border);
+            height: 68px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.85);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 32px;
+            padding: 0 28px;
             position: sticky;
             top: 0;
             z-index: 99;
             width: 100%;
             max-width: 100%;
             box-sizing: border-box;
+            box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+            gap: 16px;
         }
 
         .topbar-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             min-width: 0;
+            flex-shrink: 1;
         }
 
         .menu-toggle-btn {
-            background: none;
-            border: none;
-            font-size: 1.35rem;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            font-size: 1.25rem;
             color: var(--text-dark);
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 6px;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
+            justify-content: center;
             flex-shrink: 0;
+            transition: all 0.2s ease;
         }
 
         .menu-toggle-btn:hover {
-            background: #f1f5f9;
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: var(--primary-blue);
         }
 
-        .topbar-user {
+        .topbar-page-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+            min-width: 0;
+        }
+
+        .topbar-page-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-school-tag {
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .topbar-center {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-grow: 1;
+            max-width: 420px;
+            justify-content: center;
+        }
+
+        .topbar-search-form {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .topbar-search-input {
+            width: 100%;
+            height: 38px;
+            padding: 0 48px 0 36px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 0.84rem;
+            color: #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .topbar-search-input:focus {
+            outline: none;
+            background: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .topbar-search-form .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.88rem;
+            pointer-events: none;
+        }
+
+        .topbar-search-form .search-shortcut {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #94a3b8;
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .topbar-right {
             display: flex;
             align-items: center;
             gap: 12px;
             flex-shrink: 0;
         }
 
-        .user-avatar-circle {
+        .topbar-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .topbar-role-badge.admin-badge {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .topbar-role-badge.gurubk-badge {
+            background: #eff6ff;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+
+        .topbar-quick-action-btn {
             width: 38px;
             height: 38px;
-            border-radius: 50%;
-            background: #e0e7ff;
-            color: #4f46e5;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.15rem;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .topbar-quick-action-btn:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+            border-color: #cbd5e1;
+        }
+
+        .topbar-divider {
+            width: 1px;
+            height: 28px;
+            background: #e2e8f0;
+        }
+
+        .topbar-user-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 10px 5px 6px;
+            border-radius: 10px;
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .topbar-user-dropdown-btn:hover,
+        .topbar-user-dropdown-btn[aria-expanded="true"] {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .topbar-user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
             flex-shrink: 0;
         }
 
-        .user-details {
+        .topbar-user-avatar.gurubk-avatar {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+        }
+
+        .topbar-user-meta {
             line-height: 1.25;
-            text-align: left;
         }
 
-        .user-details .user-name {
-            font-size: 0.88rem;
+        .topbar-user-name {
+            font-size: 0.86rem;
             font-weight: 700;
-            color: var(--text-dark);
+            color: #0f172a;
             white-space: nowrap;
         }
 
-        .user-details .user-role {
-            font-size: 0.75rem;
-            color: var(--text-muted);
+        .topbar-user-role {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: #64748b;
             white-space: nowrap;
+        }
+
+        .topbar-user-menu {
+            min-width: 240px;
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            margin-top: 8px !important;
+        }
+
+        .topbar-user-menu .dropdown-header {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .topbar-user-menu .dropdown-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .topbar-user-menu .dropdown-item:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .topbar-user-menu .dropdown-item.text-danger:hover {
+            background: #fef2f2;
+            color: #dc2626;
         }
 
         /* ===== CONTENT BODY ===== */
@@ -704,6 +914,27 @@
             background: #f8fafc;
         }
 
+        /* SIDEBAR BACKDROP FOR MOBILE */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 992px) {
             .admin-sidebar {
@@ -847,32 +1078,194 @@
         </div>
     </aside>
 
+    {{-- SIDEBAR BACKDROP FOR MOBILE --}}
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
     {{-- MAIN CANVAS --}}
     <div class="admin-main">
-        {{-- TOPBAR --}}
+        {{-- TOPBAR ENHANCED --}}
         <header class="admin-topbar">
-            <div class="topbar-left d-flex align-items-center gap-3">
+            {{-- Left Section: Toggle, Active Page Title & School Indicator --}}
+            <div class="topbar-left">
                 <button class="menu-toggle-btn" id="sidebarToggle" title="Toggle Sidebar">
                     <i class="bi bi-list"></i>
                 </button>
 
-                @if(auth()->user()->isGuruBk())
-                    <div class="d-none d-md-flex align-items-center gap-1">
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2" style="font-size:0.8rem; font-weight:600;">
-                            <i class="bi bi-mortarboard me-1"></i> Kelas Binaan:
-                            {{ count(auth()->user()->kelas_binaan_array) > 0 ? implode(', ', auth()->user()->kelas_binaan_array) : 'Semua / Belum di-set' }}
+                <div class="topbar-page-info">
+                    <div class="topbar-page-title">
+                        @if(request()->routeIs('admin.dashboard'))
+                            <i class="bi bi-grid-1x2-fill text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Dashboard Utama</span>
+                        @elseif(request()->routeIs('admin.siswa*'))
+                            <i class="bi bi-people-fill text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Data Siswa</span>
+                        @elseif(request()->routeIs('admin.hasil-tes*'))
+                            <i class="bi bi-ui-checks text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Hasil Tes Minat RIASEC</span>
+                        @elseif(request()->routeIs('admin.rencana*'))
+                            <i class="bi bi-compass-fill text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Rencana Setelah Lulus</span>
+                        @elseif(request()->routeIs('admin.rekomendasi*'))
+                            <i class="bi bi-stars text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Rekomendasi Karier</span>
+                        @elseif(request()->routeIs('admin.guru-bk*'))
+                            <i class="bi bi-person-video3 text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Pengelolaan Guru BK</span>
+                        @elseif(request()->routeIs('admin.pertanyaan-tes*'))
+                            <i class="bi bi-question-circle-fill text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Bank Pertanyaan Tes</span>
+                        @elseif(request()->routeIs('admin.kampus-prodi*'))
+                            <i class="bi bi-mortarboard-fill text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Data Kampus & Prodi</span>
+                        @elseif(request()->routeIs('admin.laporan*'))
+                            <i class="bi bi-file-earmark-bar-graph-fill text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Laporan & Export</span>
+                        @elseif(request()->routeIs('admin.pengaturan*'))
+                            <i class="bi bi-gear-fill text-primary" style="font-size: 0.95rem;"></i>
+                            <span>Pengaturan Aplikasi</span>
+                        @else
+                            <span>Panel Administrasi</span>
+                        @endif
+                    </div>
+                    <div class="topbar-school-tag d-none d-sm-flex align-items-center gap-2">
+                        <span>{{ \App\Models\Setting::get('nama_sekolah', 'SMK Negeri 4 Bandar Lampung') }}</span>
+                        <span>•</span>
+                        <span class="text-success d-inline-flex align-items-center gap-1">
+                            <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+                            TA {{ \App\Models\Setting::get('tahun_ajaran', '2026/2027') }}
                         </span>
                     </div>
-                @endif
+                </div>
             </div>
 
-            <div class="topbar-user">
-                <div class="user-avatar-circle">
-                    <i class="bi bi-person-fill"></i>
-                </div>
-                <div class="user-details">
-                    <div class="user-name">{{ auth()->user()->name ?? 'User' }}</div>
-                    <div class="user-role">{{ auth()->user()->isGuruBk() ? 'Guru BK' : 'Administrator' }}</div>
+            {{-- Center Section: Quick Search for Student --}}
+            <div class="topbar-center d-none d-lg-flex">
+                <form action="{{ route('admin.siswa') }}" method="GET" class="topbar-search-form">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text"
+                           name="q"
+                           placeholder="Cari siswa atau NISN..."
+                           value="{{ request('q') }}"
+                           class="topbar-search-input">
+                    <span class="search-shortcut">Cari</span>
+                </form>
+            </div>
+
+            {{-- Right Section: Role Scope Pill, Quick Actions & User Dropdown --}}
+            <div class="topbar-right">
+                {{-- Role / Kelas Binaan Pill --}}
+                @if(auth()->user()->isGuruBk())
+                    <div class="topbar-role-badge gurubk-badge d-none d-md-flex" title="Kelas binaan yang Anda bimbing">
+                        <i class="bi bi-mortarboard-fill"></i>
+                        <span>
+                            Binaan:
+                            <strong>
+                                @php
+                                    $binaan = auth()->user()->kelas_binaan_array;
+                                @endphp
+                                {{ count($binaan) > 0 ? implode(', ', array_slice($binaan, 0, 2)) . (count($binaan) > 2 ? ' +' . (count($binaan) - 2) : '') : 'Semua Kelas' }}
+                            </strong>
+                        </span>
+                    </div>
+                @else
+                    <div class="topbar-role-badge admin-badge d-none d-md-flex">
+                        <i class="bi bi-shield-fill-check"></i>
+                        <span>Super Admin</span>
+                    </div>
+                @endif
+
+                {{-- Quick Nav Link: Kampus / Prodi Explorer --}}
+                <a href="{{ route('admin.kampus-prodi') }}"
+                   class="topbar-quick-action-btn d-none d-sm-flex"
+                   title="Penjelajah Kampus & Prodi KIP Kuliah">
+                    <i class="bi bi-buildings"></i>
+                </a>
+
+                {{-- Quick Nav Link: Export Laporan --}}
+                <a href="{{ route('admin.laporan') }}"
+                   class="topbar-quick-action-btn d-none d-sm-flex"
+                   title="Laporan & Ekspor Data">
+                    <i class="bi bi-file-earmark-arrow-down"></i>
+                </a>
+
+                <div class="topbar-divider d-none d-sm-block"></div>
+
+                {{-- User Profile Dropdown --}}
+                <div class="dropdown">
+                    <button class="topbar-user-dropdown-btn"
+                            type="button"
+                            id="topbarUserDropdown"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        <div class="topbar-user-avatar {{ auth()->user()->isGuruBk() ? 'gurubk-avatar' : '' }}">
+                            {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                        </div>
+                        <div class="topbar-user-meta d-none d-md-block">
+                            <div class="topbar-user-name">{{ auth()->user()->name ?? 'User' }}</div>
+                            <div class="topbar-user-role">
+                                {{ auth()->user()->isGuruBk() ? 'Guru BK' : 'Administrator' }}
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-down text-muted d-none d-md-block" style="font-size: 0.75rem;"></i>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end topbar-user-menu" aria-labelledby="topbarUserDropdown">
+                        <li class="dropdown-header">
+                            <div class="fw-bold text-dark" style="font-size: 0.88rem;">{{ auth()->user()->name }}</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">{{ auth()->user()->email ?? '-' }}</div>
+                            <div class="mt-1">
+                                <span class="badge {{ auth()->user()->isGuruBk() ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success' }} border" style="font-size: 0.7rem;">
+                                    <i class="bi {{ auth()->user()->isGuruBk() ? 'bi-person-workspace' : 'bi-shield-check' }} me-1"></i>
+                                    {{ auth()->user()->isGuruBk() ? 'Guru BK' : 'Administrator' }}
+                                </span>
+                            </div>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                                <i class="bi bi-grid-1x2 text-muted"></i>
+                                <span>Dashboard Utama</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('admin.siswa') }}">
+                                <i class="bi bi-people text-muted"></i>
+                                <span>Data Siswa</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('admin.kampus-prodi') }}">
+                                <i class="bi bi-mortarboard text-muted"></i>
+                                <span>Data Kampus & Prodi</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('admin.laporan') }}">
+                                <i class="bi bi-file-earmark-bar-graph text-muted"></i>
+                                <span>Laporan & Export</span>
+                            </a>
+                        </li>
+                        @if(auth()->user()->isAdmin())
+                        <li>
+                            <a class="dropdown-item" href="{{ route('admin.pengaturan') }}">
+                                <i class="bi bi-gear text-muted"></i>
+                                <span>Pengaturan Aplikasi</span>
+                            </a>
+                        </li>
+                        @endif
+
+                        <li><hr class="dropdown-divider my-1"></li>
+
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST" class="m-0">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-start">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>Keluar / Logout</span>
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </header>
@@ -909,14 +1302,55 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Sidebar Toggle for Mobile
+        // Sidebar Toggle & Backdrop for Mobile
         const sidebarToggle = document.getElementById('sidebarToggle');
         const adminSidebar = document.getElementById('adminSidebar');
-        if (sidebarToggle && adminSidebar) {
-            sidebarToggle.addEventListener('click', function () {
+        const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+        function toggleAdminSidebar(forceClose = false) {
+            if (!adminSidebar) return;
+            if (forceClose) {
+                adminSidebar.classList.remove('show');
+                if (sidebarBackdrop) sidebarBackdrop.classList.remove('show');
+            } else {
                 adminSidebar.classList.toggle('show');
+                if (sidebarBackdrop) {
+                    sidebarBackdrop.classList.toggle('show', adminSidebar.classList.contains('show'));
+                }
+            }
+        }
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleAdminSidebar();
             });
         }
+
+        if (sidebarBackdrop) {
+            sidebarBackdrop.addEventListener('click', function() {
+                toggleAdminSidebar(true);
+            });
+        }
+
+        // Close sidebar if window resized to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 992) {
+                toggleAdminSidebar(true);
+            }
+        });
+
+        // Quick Search Shortcut (Ctrl + K or /)
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                const searchInput = document.querySelector('.topbar-search-input');
+                if (searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            }
+        });
     </script>
 
     @stack('scripts')
