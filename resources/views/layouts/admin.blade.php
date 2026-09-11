@@ -935,6 +935,68 @@
             opacity: 1;
         }
 
+        /* ADMIN / GURU BK MOBILE BOTTOM NAVIGATION BAR */
+        .admin-mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            z-index: 998;
+            padding: 0 6px calc(env(safe-area-inset-bottom, 0px) + 2px);
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(15, 23, 42, 0.05);
+        }
+
+        .admin-mobile-bottom-nav .mobile-nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #64748b;
+            font-size: 0.70rem;
+            font-weight: 500;
+            gap: 4px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            transition: all 0.15s ease;
+            flex: 1;
+            max-width: 80px;
+            text-align: center;
+            cursor: pointer;
+            line-height: 1.1;
+        }
+
+        .admin-mobile-bottom-nav .mobile-nav-link i {
+            font-size: 1.25rem;
+            line-height: 1;
+            color: #64748b;
+            transition: transform 0.15s ease, color 0.15s ease;
+        }
+
+        .admin-mobile-bottom-nav .mobile-nav-link:hover {
+            color: #2563eb;
+        }
+
+        .admin-mobile-bottom-nav .mobile-nav-link:hover i {
+            color: #2563eb;
+        }
+
+        .admin-mobile-bottom-nav .mobile-nav-link.active {
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .admin-mobile-bottom-nav .mobile-nav-link.active i {
+            color: #2563eb;
+            transform: scale(1.08);
+        }
+
         /* RESPONSIVE */
         @media (max-width: 992px) {
             .admin-sidebar {
@@ -957,7 +1019,11 @@
             }
 
             .admin-content-body {
-                padding: 20px 16px 40px;
+                padding: 20px 16px 88px !important;
+            }
+
+            .admin-mobile-bottom-nav {
+                display: flex;
             }
         }
 
@@ -987,14 +1053,19 @@
     {{-- SIDEBAR --}}
     <aside class="admin-sidebar" id="adminSidebar">
         {{-- BRAND (PINNED TOP) --}}
-        <div class="sidebar-brand">
-            <div class="brand-icon">
-                <i class="bi bi-mortarboard-fill"></i>
+        <div class="sidebar-brand d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <div class="brand-icon">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div>
+                    <div class="brand-title">Rencana Setelah Lulus</div>
+                    <div class="brand-subtitle">{{ auth()->user()->isGuruBk() ? 'Guru BK Panel' : 'Admin Panel' }}</div>
+                </div>
             </div>
-            <div>
-                <div class="brand-title">Rencana Setelah Lulus</div>
-                <div class="brand-subtitle">{{ auth()->user()->isGuruBk() ? 'Guru BK Panel' : 'Admin Panel' }}</div>
-            </div>
+            <button type="button" class="btn text-white-50 p-1 d-lg-none" id="sidebarCloseBtn" title="Tutup Menu">
+                <i class="bi bi-x-lg" style="font-size: 1.15rem;"></i>
+            </button>
         </div>
 
         {{-- SCROLLABLE MENU (MIDDLE) --}}
@@ -1298,6 +1369,41 @@
         </main>
     </div>
 
+    {{-- ADMIN / GURU BK MOBILE BOTTOM NAVIGATION BAR --}}
+    <nav class="admin-mobile-bottom-nav d-lg-none" id="adminMobileBottomNav">
+        <a href="{{ route('admin.dashboard') }}"
+           class="mobile-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <i class="bi bi-house-door{{ request()->routeIs('admin.dashboard') ? '-fill' : '' }}"></i>
+            <span>Beranda</span>
+        </a>
+
+        <a href="{{ route('admin.siswa') }}"
+           class="mobile-nav-link {{ request()->routeIs('admin.siswa*') ? 'active' : '' }}">
+            <i class="bi bi-people{{ request()->routeIs('admin.siswa*') ? '-fill' : '' }}"></i>
+            <span>Siswa</span>
+        </a>
+
+        <a href="{{ route('admin.hasil-tes') }}"
+           class="mobile-nav-link {{ request()->routeIs('admin.hasil-tes*') ? 'active' : '' }}">
+            <i class="bi bi-lightning-charge{{ request()->routeIs('admin.hasil-tes*') ? '-fill' : '' }}"></i>
+            <span>Hasil Tes</span>
+        </a>
+
+        <a href="{{ route('admin.rencana') }}"
+           class="mobile-nav-link {{ request()->routeIs('admin.rencana*') ? 'active' : '' }}">
+            <i class="bi bi-compass{{ request()->routeIs('admin.rencana*') ? '-fill' : '' }}"></i>
+            <span>Rencana</span>
+        </a>
+
+        <button type="button"
+                class="mobile-nav-link border-0 bg-transparent {{ request()->routeIs('admin.kampus-prodi*', 'admin.laporan*', 'admin.guru-bk*', 'admin.pertanyaan-tes*', 'admin.pengaturan*', 'admin.rekomendasi*') ? 'active' : '' }}"
+                id="mobileBottomMenuBtn"
+                title="Buka Menu Lainnya">
+            <i class="bi bi-grid{{ request()->routeIs('admin.kampus-prodi*', 'admin.laporan*', 'admin.guru-bk*', 'admin.pertanyaan-tes*', 'admin.pengaturan*', 'admin.rekomendasi*') ? '-fill' : '' }}"></i>
+            <span>Menu</span>
+        </button>
+    </nav>
+
     {{-- Bootstrap 5 Bundle JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -1324,6 +1430,22 @@
             sidebarToggle.addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleAdminSidebar();
+            });
+        }
+
+        const mobileBottomMenuBtn = document.getElementById('mobileBottomMenuBtn');
+        if (mobileBottomMenuBtn) {
+            mobileBottomMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleAdminSidebar();
+            });
+        }
+
+        const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+        if (sidebarCloseBtn) {
+            sidebarCloseBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleAdminSidebar(true);
             });
         }
 
