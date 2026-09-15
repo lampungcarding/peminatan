@@ -32,7 +32,13 @@ class SiswaController extends Controller
     {
         $user = Auth::user();
 
-        // Prasyarat: Siswa WAJIB menyelesaikan Tes Minat Karier terlebih dahulu!
+        // Prasyarat 1: Siswa WAJIB memeriksa & konfirmasi biodata diri terlebih dahulu!
+        if (!$user->is_biodata_confirmed) {
+            return redirect()->route('siswa.profil')
+                ->with('warning', 'Kamu wajib memeriksa dan mengonfirmasi biodata diri terlebih dahulu sebelum mengisi Rencana Setelah Lulus.');
+        }
+
+        // Prasyarat 2: Siswa WAJIB menyelesaikan Tes Minat Karier terlebih dahulu!
         if (!$user->is_tes_selesai) {
             return redirect()->route('tes.index')
                 ->with('warning', 'Kamu wajib mengikuti dan menyelesaikan Tes Minat Karier (Sesi 1 & Sesi 2) terlebih dahulu sebelum mengisi Rencana Setelah Lulus.');
@@ -63,7 +69,13 @@ class SiswaController extends Controller
     {
         $user = Auth::user();
 
-        // Prasyarat: Siswa WAJIB menyelesaikan Tes Minat Karier terlebih dahulu!
+        // Prasyarat 1: Siswa WAJIB konfirmasi biodata diri terlebih dahulu!
+        if (!$user->is_biodata_confirmed) {
+            return redirect()->route('siswa.profil')
+                ->with('warning', 'Kamu wajib memeriksa dan mengonfirmasi biodata diri terlebih dahulu sebelum mengisi Rencana Setelah Lulus.');
+        }
+
+        // Prasyarat 2: Siswa WAJIB menyelesaikan Tes Minat Karier terlebih dahulu!
         if (!$user->is_tes_selesai) {
             return redirect()->route('tes.index')
                 ->with('warning', 'Kamu wajib mengikuti dan menyelesaikan Tes Minat Karier (Sesi 1 & Sesi 2) terlebih dahulu sebelum mengisi Rencana Setelah Lulus.');
@@ -161,6 +173,12 @@ class SiswaController extends Controller
     {
         $user = Auth::user();
 
+        // Prasyarat 1: Siswa WAJIB konfirmasi biodata diri terlebih dahulu!
+        if (!$user->is_biodata_confirmed) {
+            return redirect()->route('siswa.profil')
+                ->with('warning', 'Kamu wajib memeriksa dan mengonfirmasi biodata diri terlebih dahulu.');
+        }
+
         if (!$user->is_tes_selesai) {
             return redirect()->route('tes.index')
                 ->with('warning', 'Kamu wajib mengikuti dan menyelesaikan Tes Minat Karier (Sesi 1 & Sesi 2) terlebih dahulu sebelum mengisi Rencana Setelah Lulus.');
@@ -173,8 +191,6 @@ class SiswaController extends Controller
                 ->with('warning', 'Silakan pilih rencana terlebih dahulu.');
         }
 
-        $user = Auth::user();
-
         return view('siswa.konfirmasi', compact('user', 'data'));
     }
 
@@ -184,6 +200,12 @@ class SiswaController extends Controller
     public function submit(Request $request)
     {
         $user = Auth::user();
+
+        // Prasyarat 1: Siswa WAJIB konfirmasi biodata diri terlebih dahulu!
+        if (!$user->is_biodata_confirmed) {
+            return redirect()->route('siswa.profil')
+                ->with('warning', 'Kamu wajib memeriksa dan mengonfirmasi biodata diri terlebih dahulu.');
+        }
 
         if (!$user->is_tes_selesai) {
             return redirect()->route('tes.index')
@@ -252,5 +274,56 @@ class SiswaController extends Controller
         $pilihan = $user->pilihanSetelahLulus;
 
         return view('siswa.profil', compact('user', 'careerResult', 'pilihan'));
+    }
+
+    /**
+     * Pembaruan biodata mandiri oleh siswa.
+     */
+    public function updateProfil(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'jk' => ['nullable', 'in:L,P'],
+            'nik' => ['nullable', 'string', 'max:30'],
+            'nipd' => ['nullable', 'string', 'max:50'],
+            'tempat_lahir' => ['nullable', 'string', 'max:100'],
+            'tanggal_lahir' => ['nullable', 'date'],
+            'no_hp' => ['nullable', 'string', 'max:30'],
+            'alamat' => ['nullable', 'string', 'max:500'],
+            'rt' => ['nullable', 'string', 'max:10'],
+            'rw' => ['nullable', 'string', 'max:10'],
+            'dusun' => ['nullable', 'string', 'max:100'],
+            'kelurahan' => ['nullable', 'string', 'max:100'],
+            'kecamatan' => ['nullable', 'string', 'max:100'],
+            'kabupaten_kota' => ['nullable', 'string', 'max:100'],
+            'kode_pos' => ['nullable', 'string', 'max:10'],
+        ], [
+            'name.required' => 'Nama lengkap siswa wajib diisi.',
+            'jk.in' => 'Pilih jenis kelamin yang valid (L atau P).',
+            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid.',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'jk' => $request->jk,
+            'nik' => $request->nik ?: null,
+            'nipd' => $request->nipd ?: null,
+            'tempat_lahir' => $request->tempat_lahir ?: null,
+            'tanggal_lahir' => $request->tanggal_lahir ?: null,
+            'no_hp' => $request->no_hp ?: null,
+            'alamat' => $request->alamat ?: null,
+            'rt' => $request->rt ?: null,
+            'rw' => $request->rw ?: null,
+            'dusun' => $request->dusun ?: null,
+            'kelurahan' => $request->kelurahan ?: null,
+            'kecamatan' => $request->kecamatan ?: null,
+            'kabupaten_kota' => $request->kabupaten_kota ?: 'Kota Bandar Lampung',
+            'kode_pos' => $request->kode_pos ?: null,
+            'biodata_confirmed_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Biodata diri kamu berhasil disimpan dan terkonfirmasi! Akses ke tahapan selanjutnya (Tes Minat Karier dan Rencana Kelulusan) kini telah aktif.');
     }
 }

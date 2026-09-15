@@ -24,6 +24,19 @@ class User extends Authenticatable
         'password',
         'role',
         'nisn',
+        'nipd',
+        'jk',
+        'nik',
+        'alamat',
+        'rt',
+        'rw',
+        'dusun',
+        'kelurahan',
+        'kecamatan',
+        'kabupaten_kota',
+        'kode_pos',
+        'no_hp',
+        'biodata_confirmed_at',
         'kelas',
         'binaan_kelas',
         'tempat_lahir',
@@ -51,6 +64,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'binaan_kelas' => 'array',
+            'biodata_confirmed_at' => 'datetime',
         ];
     }
 
@@ -138,11 +152,99 @@ class User extends Authenticatable
     }
 
     /**
-     * Cek apakah data lengkap (tes selesai & rencana selesai).
+     * Cek apakah siswa sudah melakukan konfirmasi/validasi biodata diri.
+     */
+    public function getIsBiodataConfirmedAttribute(): bool
+    {
+        return $this->biodata_confirmed_at !== null;
+    }
+
+    /**
+     * Cek apakah data lengkap (biodata terkonfirmasi, tes selesai & rencana selesai).
      */
     public function getIsDataLengkapAttribute(): bool
     {
-        return $this->is_tes_selesai && $this->is_rencana_selesai;
+        return $this->is_biodata_confirmed && $this->is_tes_selesai && $this->is_rencana_selesai;
+    }
+
+    /**
+     * Label Jenis Kelamin lengkap.
+     */
+    public function getJenisKelaminTextAttribute(): string
+    {
+        if (strtoupper((string) $this->jk) === 'L') {
+            return 'Laki-laki';
+        }
+        if (strtoupper((string) $this->jk) === 'P') {
+            return 'Perempuan';
+        }
+        return '-';
+    }
+
+    /**
+     * Tempat dan Tanggal Lahir terformat.
+     */
+    public function getTtlFormattedAttribute(): string
+    {
+        $parts = [];
+        if (!empty($this->tempat_lahir) && $this->tempat_lahir !== '-') {
+            $parts[] = $this->tempat_lahir;
+        }
+        if (!empty($this->tanggal_lahir) && $this->tanggal_lahir !== '-') {
+            try {
+                $parts[] = \Carbon\Carbon::parse($this->tanggal_lahir)->translatedFormat('d F Y');
+            } catch (\Exception $e) {
+                $parts[] = $this->tanggal_lahir;
+            }
+        }
+        return !empty($parts) ? implode(', ', $parts) : '-';
+    }
+
+    /**
+     * Tempat dan Tanggal Lahir ringkas (Tempat, dd-mm-yyyy).
+     */
+    public function getTtlRingkasAttribute(): string
+    {
+        $parts = [];
+        if (!empty($this->tempat_lahir) && $this->tempat_lahir !== '-') {
+            $parts[] = $this->tempat_lahir;
+        }
+        if (!empty($this->tanggal_lahir) && $this->tanggal_lahir !== '-') {
+            try {
+                $parts[] = \Carbon\Carbon::parse($this->tanggal_lahir)->format('d-m-Y');
+            } catch (\Exception $e) {
+                $parts[] = $this->tanggal_lahir;
+            }
+        }
+        return !empty($parts) ? implode(', ', $parts) : '-';
+    }
+
+    /**
+     * Alamat ringkas siswa.
+     */
+    public function getAlamatLengkapAttribute(): string
+    {
+        $parts = [];
+        if (!empty($this->alamat) && $this->alamat !== '-') {
+            $parts[] = $this->alamat;
+        }
+        if (!empty($this->rt) && $this->rt !== '0' && $this->rt !== '-') {
+            $parts[] = 'RT ' . $this->rt;
+        }
+        if (!empty($this->rw) && $this->rw !== '0' && $this->rw !== '-') {
+            $parts[] = 'RW ' . $this->rw;
+        }
+        if (!empty($this->kelurahan) && $this->kelurahan !== '-') {
+            $parts[] = $this->kelurahan;
+        }
+        if (!empty($this->kecamatan) && $this->kecamatan !== '-') {
+            $parts[] = $this->kecamatan;
+        }
+        if (!empty($this->kabupaten_kota) && $this->kabupaten_kota !== '-') {
+            $parts[] = $this->kabupaten_kota;
+        }
+        return !empty($parts) ? implode(', ', $parts) : '-';
     }
 }
+
 

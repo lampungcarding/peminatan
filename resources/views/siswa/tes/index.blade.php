@@ -81,6 +81,21 @@
             </div>
         </div>
 
+        {{-- Notice jika biodata belum dikonfirmasi --}}
+        @if(!auth()->user()->is_biodata_confirmed)
+            <div class="alert alert-warning border-0 p-3 mb-4 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background:#FEF3C7; border-left: 4px solid #F59E0B !important; color:#92400E;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                    <div>
+                        <strong>Konfirmasi Biodata Diperlukan:</strong> Kamu wajib memeriksa dan mengonfirmasi kebenaran biodata diri terlebih dahulu sebelum dapat mengerjakan tes ini.
+                    </div>
+                </div>
+                <a href="{{ route('siswa.profil') }}" class="btn btn-warning btn-sm fw-bold px-3 py-2" style="border-radius: 6px;">
+                    <i class="bi bi-shield-check me-1"></i> Konfirmasi Biodata Sekarang
+                </a>
+            </div>
+        @endif
+
         {{-- Petunjuk Pengerjaan & Tombol Mulai --}}
         <div class="card-pro p-4 mb-4" style="background: #FFFFFF; border: 1px solid #E4E7EC; border-radius: 12px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
             <div class="row align-items-center g-4">
@@ -96,9 +111,15 @@
                     </ul>
                 </div>
                 <div class="col-12 col-md-4 text-md-end">
-                    <a href="{{ route('tes.mulai') }}" class="btn-brand-primary w-100 py-2 px-4 text-center">
-                        <i class="bi bi-play-circle me-1"></i> Mulai Mengerjakan Tes
-                    </a>
+                    @if(!auth()->user()->is_biodata_confirmed)
+                        <a href="{{ route('siswa.profil') }}" class="btn btn-warning w-100 py-2 px-3 text-center fw-bold" style="border-radius: 8px; font-size: 0.85rem;">
+                            <i class="bi bi-lock-fill me-1"></i> Konfirmasi Biodata Dulu
+                        </a>
+                    @else
+                        <a href="{{ route('tes.mulai') }}" class="btn-brand-primary w-100 py-2 px-4 text-center">
+                            <i class="bi bi-play-circle me-1"></i> Mulai Mengerjakan Tes
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

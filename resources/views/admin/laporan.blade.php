@@ -69,12 +69,59 @@
     </div>
 </div>
 
+{{-- Cetak Form Rekapitulasi Sekolah (Sesuai Blanko Fisik) --}}
+<div class="panel-card mb-4" style="border: 2px solid #3b82f6; background: linear-gradient(to right, #ffffff, #f0f7ff);">
+    <div class="panel-header" style="border-bottom: 1px solid #bfdbfe;">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary px-2 py-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">FORMAT RESMI SEKOLAH</span>
+                <span class="badge bg-success px-2 py-1" style="font-size: 0.72rem;">DATA REVISI AKTIF</span>
+            </div>
+            <h2 class="mt-1" style="color: #1e3a8a;"><i class="bi bi-printer-fill me-2 text-primary"></i>Cetak Form Laporan Hasil & Rekapitulasi Siswa</h2>
+            <p style="color: #475569;">Format cetak landscape standar blanko sekolah (NO, NISN, NAMA, L/P, NIK, TTL, ALAMAT, HP/WA, MINAT BEKERJA/KULIAH/WIRAUSAHA, REKAP L/P, TTD GURU BK)</p>
+        </div>
+    </div>
+
+    <div class="p-3">
+        <form method="GET" action="{{ route('admin.laporan.cetak') }}" target="_blank" class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+                <label for="cetakKelas" class="form-label fw-bold" style="font-size:0.84rem;">Pilih Kelas untuk Dicetak</label>
+                <select name="kelas" id="cetakKelas" class="form-select filter-select">
+                    <option value="Semua">Seluruh Siswa (Semua Kelas)</option>
+                    @foreach($kelasList as $kelas)
+                        <option value="{{ $kelas }}">{{ $kelas }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label for="cetakTahun" class="form-label fw-bold" style="font-size:0.84rem;">Tahun Lulus</label>
+                <input type="text" name="tahun_lulus" id="cetakTahun" class="form-control" value="TAHUN 2025" style="border-radius: 8px; font-size: 0.88rem;">
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label for="cetakMode" class="form-label fw-bold" style="font-size:0.84rem;">Mode Isian</label>
+                <select name="mode" id="cetakMode" class="form-select filter-select">
+                    <option value="isi">Data Terisi Otomatis dari Sistem</option>
+                    <option value="kosong">Blanko Kosong (Sesuai Foto / Pengisian Manual)</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2 fw-bold" style="background-color: #2563eb; border-color: #2563eb; border-radius: 8px; font-size: 0.88rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
+                    <i class="bi bi-printer"></i> Buka Form
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 {{-- Export Generator Panel --}}
 <div class="panel-card">
     <div class="panel-header">
         <div>
-            <h2>Ekspor Dokumen Laporan Lengkap</h2>
-            <p>Filter data sebelum mengekspor file rekapitulasi sekolah</p>
+            <h2>Ekspor Dokumen Laporan Lengkap (CSV / Excel)</h2>
+            <p>Filter data sebelum mengekspor file rekapitulasi sekolah yang memuat seluruh biodata baru dan status rencana</p>
         </div>
     </div>
 
@@ -117,16 +164,16 @@
 
         <div class="p-4 rounded-3 mb-4" style="background:#f8fafc; border:1px solid #e2e8f0;">
             <div style="font-size:0.86rem; font-weight:700; color:#0f172a; margin-bottom:6px;">
-                <i class="bi bi-file-earmark-spreadsheet-fill text-success me-1"></i> Kolom yang disertakan dalam Laporan Ekspor:
+                <i class="bi bi-file-earmark-spreadsheet-fill text-success me-1"></i> Kolom yang disertakan dalam Laporan Ekspor Lengkap:
             </div>
             <div style="font-size:0.8rem; color:#64748b; line-height:1.6;">
-                Nomor, Nama Lengkap Siswa, NISN, Kelas, Tempat/Tanggal Lahir, Status Tes, Holland Code (3 Huruf), Tipe Dominan, Nilai 6 Dimensi (R, I, A, S, E, C), Status Rencana, Rencana Pilihan (Kuliah/Kerja/Usaha), Perguruan Tinggi, Program Studi, Jenjang, Akreditasi, Bidang Pekerjaan, Keterangan Pekerjaan, Bidang Usaha, Keterangan Usaha, Status Kelengkapan, Waktu Submit.
+                Nomor, Nama Lengkap Siswa, NIPD, L/P, NISN, NIK, Kelas, Tempat/Tanggal Lahir, Alamat, RT, RW, Kelurahan, Kecamatan, Kabupaten/Kota, Kode Pos, HP/WA, Minat Bekerja (V), Minat Melanjutkan (V), Minat Wirausaha (V), Keterangan Minat Pilihan, Perguruan Tinggi, Program Studi, Jenjang, Akreditasi, Bidang Pekerjaan, Keterangan Pekerjaan, Bidang Usaha, Keterangan Usaha, Status Tes RIASEC, Holland Code, Tipe Dominan, Status Rencana, Status Kelengkapan, Waktu Submit.
             </div>
         </div>
 
         <div class="d-flex justify-content-end">
             <button type="submit" class="btn-brand-primary px-4 py-3" style="font-size: 0.92rem;">
-                <i class="bi bi-download me-2"></i> Unduh File Laporan (CSV / Excel)
+                <i class="bi bi-download me-2"></i> Unduh File Laporan Lengkap (CSV / Excel)
             </button>
         </div>
     </form>

@@ -36,6 +36,7 @@ Route::middleware(['auth', 'role:siswa'])->group(function () {
     Route::get('/siswa', [SiswaController::class, 'dashboard'])->name('siswa.dashboard');
     Route::get('/pilihan-saya', [SiswaController::class, 'pilihanSaya'])->name('siswa.pilihan-saya');
     Route::get('/profil', [SiswaController::class, 'profil'])->name('siswa.profil');
+    Route::put('/profil', [SiswaController::class, 'updateProfil'])->name('siswa.profil.update');
 
     // Modul Tes Minat Karier (RIASEC)
     Route::get('/tes-minat', [TesMinatController::class, 'index'])->name('tes.index');
@@ -91,6 +92,7 @@ Route::middleware(['auth', 'role:admin,guru_bk'])->prefix('admin')->group(functi
     // Laporan & Export Komprehensif
     Route::get('/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');
     Route::get('/laporan/export', [AdminController::class, 'exportLaporan'])->name('admin.laporan.export');
+    Route::get('/laporan/cetak', [AdminController::class, 'cetakLaporan'])->name('admin.laporan.cetak');
     Route::get('/rencana-siswa/export', [AdminController::class, 'exportLaporan'])->name('admin.rencana-siswa.export'); // alias
 
     // Admin Only Routes

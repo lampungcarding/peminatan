@@ -17,136 +17,171 @@ class ImportSiswaExcel extends Command
      *
      * @var string
      */
-    protected $signature = 'import:siswa-excel {--with-plans : Also generate realistic plan distribution matching sample mockup}';
+    protected $signature = 'import:siswa-excel {--file= : Path ke file excel} {--with-plans : Also generate realistic plan distribution matching sample mockup}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import data siswa dari file KELAS 12.xlsx ke tabel users';
+    protected $description = 'Import & sinkronisasi data siswa dari kelas 12 revisi.xlsx ke tabel users tanpa menghapus data tes/rencana';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $filePath = base_path('KELAS 12.xlsx');
-
-        if (!file_exists($filePath)) {
-            $this->error("File tidak ditemukan: {$filePath}");
+        $customFile = $this->option('file');
+        if ($customFile && file_exists(base_path($customFile))) {
+            $filePath = base_path($customFile);
+        } elseif (file_exists(base_path('kelas 12 revisi.xlsx'))) {
+            $filePath = base_path('kelas 12 revisi.xlsx');
+        } elseif (file_exists(base_path('KELAS 12.xlsx'))) {
+            $filePath = base_path('KELAS 12.xlsx');
+        } else {
+            $this->error("File data siswa Excel tidak ditemukan di root aplikasi.");
             return 1;
         }
 
-        $this->info("Membuka file Excel: {$filePath}");
+        $this->info("Membuka dan memproses file Excel: " . basename($filePath));
 
-        $zip = new ZipArchive();
-        if ($zip->open($filePath) !== true) {
-            $this->error("Gagal membuka file Excel sebagai ZipArchive.");
-            return 1;
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($filePath);
+        $reader->setReadDataOnly(true);
+        $spreadsheet = $reader->load($filePath);
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $highestRow = $sheet->getHighestRow();
+        $this->info("Total baris file: {$highestRow}");
+
+        // Deteksi apakah format baru (kelas 12 revisi.xlsx - Header di row 4)
+        $isFormatRevisi = false;
+        $row4Header = (string) $sheet->getCell('D4')->getValue();
+        if (stripos($row4Header, 'Nama') !== false) {
+            $isFormatRevisi = true;
+            $startRow = 5;
+            $this->info("Format terdeteksi: Format Revisi Lengkap (Row 4 Header).");
+        } else {
+            $startRow = 2;
+            $this->info("Format terdeteksi: Format Standar.");
         }
-
-        // 1. Baca sharedStrings
-        $sharedStrings = [];
-        $sharedStringsXml = $zip->getFromName('xl/sharedStrings.xml');
-        if ($sharedStringsXml) {
-            $xml = new SimpleXMLElement($sharedStringsXml);
-            $xml->registerXPathNamespace('ns', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-            foreach ($xml->xpath('//ns:si | //si') as $si) {
-                $si->registerXPathNamespace('ns', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-                $tNodes = $si->xpath('.//ns:t | .//t');
-                $text = '';
-                foreach ($tNodes as $t) {
-                    $text .= (string) $t;
-                }
-                $sharedStrings[] = $text;
-            }
-        }
-
-        // 2. Baca sheet1
-        $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
-        if (!$sheetXml) {
-            $this->error("Sheet1 tidak ditemukan dalam Excel.");
-            $zip->close();
-            return 1;
-        }
-
-        $xmlSheet = new SimpleXMLElement($sheetXml);
-        $zip->close();
-        $xmlSheet->registerXPathNamespace('ns', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-
-        $rows = $xmlSheet->xpath('//ns:row | //row');
-        $this->info("Ditemukan " . count($rows) . " baris data (termasuk header).");
 
         $defaultPassword = Hash::make('password');
-        $students = [];
+        $updatedCount = 0;
+        $createdCount = 0;
+        $allProcessedUsers = [];
 
-        // Skip header row
-        for ($i = 1; $i < count($rows); $i++) {
-            $row = $rows[$i];
-            $row->registerXPathNamespace('ns', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
-            $cells = [];
-
-            foreach ($row->xpath('.//ns:c | .//c') as $c) {
-                $ref = (string) $c['r'];
-                $col = preg_replace('/[0-9]/', '', $ref);
-                $type = (string) $c['t'];
-                $val = (string) ($c->v ?? ($c->children('http://schemas.openxmlformats.org/spreadsheetml/2006/main')->v ?? ''));
-
-                if ($type === 's' && is_numeric($val) && isset($sharedStrings[(int) $val])) {
-                    $val = $sharedStrings[(int) $val];
-                }
-
-                $cells[$col] = trim($val);
-            }
-
-            $nama = $cells['B'] ?? '';
-            $nisn = $cells['C'] ?? '';
-            $kelas = $cells['D'] ?? '';
-            $tempatLahir = $cells['E'] ?? '';
-            $tanggalLahir = $cells['F'] ?? '';
-
-            if (!empty($nama) && !empty($nisn)) {
-                $students[] = [
-                    'nama' => $nama,
-                    'nisn' => $nisn,
-                    'kelas' => $kelas,
-                    'tempat_lahir' => $tempatLahir,
-                    'tanggal_lahir' => $tanggalLahir,
-                ];
-            }
-        }
-
-        $this->info("Memproses " . count($students) . " siswa ke database...");
-
-        $bar = $this->output->createProgressBar(count($students));
+        $bar = $this->output->createProgressBar($highestRow - $startRow + 1);
         $bar->start();
 
-        $importedCount = 0;
-        $createdUsers = [];
-
-        foreach ($students as $data) {
-            $user = User::updateOrCreate(
-                ['nisn' => $data['nisn']],
-                [
-                    'name' => $data['nama'],
-                    'email' => $data['nisn'] . '@sekolah.id',
-                    'password' => $defaultPassword,
-                    'role' => 'siswa',
-                    'kelas' => $data['kelas'],
-                    'tempat_lahir' => $data['tempat_lahir'],
-                    'tanggal_lahir' => $data['tanggal_lahir'],
-                ]
-            );
-
-            $createdUsers[] = $user;
-            $importedCount++;
+        for ($r = $startRow; $r <= $highestRow; $r++) {
             $bar->advance();
+
+            if ($isFormatRevisi) {
+                $nama = trim((string) $sheet->getCell('D' . $r)->getValue());
+                $nipd = trim((string) $sheet->getCell('E' . $r)->getValue());
+                $jk = strtoupper(trim((string) $sheet->getCell('F' . $r)->getValue()));
+                $nisn = trim((string) $sheet->getCell('G' . $r)->getValue());
+                $tempatLahir = trim((string) $sheet->getCell('H' . $r)->getValue());
+                $tanggalLahirRaw = trim((string) $sheet->getCell('I' . $r)->getValue());
+                $nik = trim((string) $sheet->getCell('J' . $r)->getValue());
+                $alamat = trim((string) $sheet->getCell('K' . $r)->getValue());
+                $rt = trim((string) $sheet->getCell('L' . $r)->getValue());
+                $rw = trim((string) $sheet->getCell('M' . $r)->getValue());
+                $dusun = trim((string) $sheet->getCell('N' . $r)->getValue());
+                $kelurahan = trim((string) $sheet->getCell('O' . $r)->getValue());
+                $kecamatan = trim((string) $sheet->getCell('P' . $r)->getValue());
+                $kodePos = trim((string) $sheet->getCell('Q' . $r)->getValue());
+                $noHp = trim((string) $sheet->getCell('R' . $r)->getValue());
+                $kelas = trim((string) $sheet->getCell('S' . $r)->getValue());
+
+                // Format tanggal lahir
+                $tanggalLahir = null;
+                if (!empty($tanggalLahirRaw) && $tanggalLahirRaw !== '-') {
+                    try {
+                        $tanggalLahir = Carbon::parse($tanggalLahirRaw)->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        $tanggalLahir = $tanggalLahirRaw;
+                    }
+                }
+
+                // Inisialisasi Kabupaten / Kota
+                $kabKota = 'Kota Bandar Lampung';
+                if (str_starts_with($nik, '1801') || stripos($kecamatan, 'Katibung') !== false || stripos($kecamatan, 'Natar') !== false || stripos($kecamatan, 'Jati Agung') !== false) {
+                    $kabKota = 'Kab. Lampung Selatan';
+                } elseif (str_starts_with($nik, '1802')) {
+                    $kabKota = 'Kab. Lampung Tengah';
+                } elseif (str_starts_with($nik, '1806')) {
+                    $kabKota = 'Kab. Tanggamus';
+                } elseif (str_starts_with($nik, '1809') || stripos($kecamatan, 'Gedong Tataan') !== false) {
+                    $kabKota = 'Kab. Pesawaran';
+                } elseif (str_starts_with($nik, '1872')) {
+                    $kabKota = 'Kota Metro';
+                } elseif (str_starts_with($nik, '3209')) {
+                    $kabKota = 'Kab. Cirebon';
+                }
+
+                $payload = [
+                    'name' => $nama,
+                    'nipd' => $nipd ?: null,
+                    'jk' => in_array($jk, ['L', 'P']) ? $jk : null,
+                    'nik' => $nik ?: null,
+                    'tempat_lahir' => $tempatLahir ?: null,
+                    'tanggal_lahir' => $tanggalLahir ?: null,
+                    'alamat' => ($alamat && $alamat !== '-') ? $alamat : null,
+                    'rt' => ($rt !== '' && $rt !== '-') ? $rt : null,
+                    'rw' => ($rw !== '' && $rw !== '-') ? $rw : null,
+                    'dusun' => ($dusun && $dusun !== '-') ? $dusun : null,
+                    'kelurahan' => ($kelurahan && $kelurahan !== '-') ? $kelurahan : null,
+                    'kecamatan' => ($kecamatan && $kecamatan !== '-') ? $kecamatan : null,
+                    'kabupaten_kota' => $kabKota,
+                    'kode_pos' => $kodePos ?: null,
+                    'no_hp' => $noHp ?: null,
+                    'kelas' => $kelas ?: null,
+                ];
+            } else {
+                $nama = trim((string) $sheet->getCell('B' . $r)->getValue());
+                $nisn = trim((string) $sheet->getCell('C' . $r)->getValue());
+                $kelas = trim((string) $sheet->getCell('D' . $r)->getValue());
+                $tempatLahir = trim((string) $sheet->getCell('E' . $r)->getValue());
+                $tanggalLahir = trim((string) $sheet->getCell('F' . $r)->getValue());
+
+                $payload = [
+                    'name' => $nama,
+                    'tempat_lahir' => $tempatLahir ?: null,
+                    'tanggal_lahir' => $tanggalLahir ?: null,
+                    'kelas' => $kelas ?: null,
+                ];
+            }
+
+            if (empty($nama) || empty($nisn)) {
+                continue;
+            }
+
+            // Cari siswa berdasarkan NISN agar ID, password, dan data submit rencana/tes tetap utuh
+            $user = User::where('nisn', $nisn)->first();
+
+            if ($user) {
+                // Update biodata siswa yang ada tanpa mereset password atau relasi
+                $user->update($payload);
+                $updatedCount++;
+            } else {
+                // Buat baru jika belum ada
+                $payload['nisn'] = $nisn;
+                $payload['email'] = $nisn . '@sekolah.id';
+                $payload['password'] = $defaultPassword;
+                $payload['role'] = 'siswa';
+                $user = User::create($payload);
+                $createdCount++;
+            }
+
+            $allProcessedUsers[] = $user;
         }
 
         $bar->finish();
-        $this->newLine();
-        $this->info("Berhasil mengimpor {$importedCount} siswa.");
+        $this->newLine(2);
+        $this->info("Sinkronisasi data selesai!");
+        $this->info("- Siswa diperbarui (data tes & rencana tetap aman): {$updatedCount}");
+        $this->info("- Siswa baru ditambahkan: {$createdCount}");
 
         // Pastikan akun Admin tetap ada
         User::updateOrCreate(
@@ -162,7 +197,7 @@ class ImportSiswaExcel extends Command
 
         // Generate realistic plan distribution only if explicitly requested
         if ($this->option('with-plans')) {
-            $this->seedRealisticPlans($createdUsers);
+            $this->seedRealisticPlans($allProcessedUsers);
         }
 
         return 0;

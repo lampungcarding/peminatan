@@ -36,6 +36,12 @@ class TesMinatController extends Controller
     {
         $user = Auth::user();
 
+        // Prasyarat: Siswa WAJIB konfirmasi biodata diri terlebih dahulu!
+        if (!$user->is_biodata_confirmed) {
+            return redirect()->route('siswa.profil')
+                ->with('warning', 'Kamu wajib memeriksa dan mengonfirmasi kebenaran biodata diri terlebih dahulu sebelum memulai Tes Minat Karier.');
+        }
+
         if ($user->is_tes_selesai) {
             return redirect()->route('tes.hasil')->with('info', 'Kamu telah menyelesaikan tes minat karier. Untuk mengulang atau mereset hasil tes, silakan hubungi Guru BK.');
         }
@@ -56,6 +62,12 @@ class TesMinatController extends Controller
     public function simpan(Request $request)
     {
         $user = Auth::user();
+
+        if (!$user->is_biodata_confirmed) {
+            return redirect()->route('siswa.profil')
+                ->with('warning', 'Kamu wajib memeriksa dan mengonfirmasi kebenaran biodata diri terlebih dahulu sebelum menyimpan jawaban tes.');
+        }
+
         $questions = CareerQuestion::active()->get();
 
         // Validasi: seluruh pertanyaan aktif harus memiliki jawaban skor 1-5

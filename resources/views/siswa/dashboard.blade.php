@@ -46,18 +46,117 @@
     </div>
 </div>
 
-{{-- 3 STATUS TRACKER CARDS (Point 4 & 5) --}}
+{{-- BIODATA SISWA CARD DENGAN STATUS KONFIRMASI --}}
+<div class="card-pro mb-4 p-4" style="background: #ffffff; border: 1px solid #E4E7EC; border-radius: 12px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 pb-3 mb-3 border-bottom">
+        <div class="d-flex align-items-center gap-3">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #EFF6FF; color: #2563EB; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                <i class="bi bi-person-vcard-fill"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <h2 style="font-size: 1.05rem; font-weight: 700; color: #1F2937; margin: 0;">
+                        Biodata Diri Terdaftar
+                    </h2>
+                    @if($user->is_biodata_confirmed)
+                        <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.7rem; font-weight: 600;">
+                            <i class="bi bi-check-circle-fill me-1"></i> Biodata Terkonfirmasi
+                        </span>
+                    @else
+                        <span class="badge bg-warning text-dark fw-bold" style="font-size: 0.7rem;">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Wajib Dikonfirmasi
+                        </span>
+                    @endif
+                </div>
+                <div style="font-size: 0.78rem; color: #667085;">
+                    Data ini digunakan untuk penyusunan berkas formulir dan laporan kelulusan sekolah
+                </div>
+            </div>
+        </div>
+
+        <div>
+            @if($user->is_biodata_confirmed)
+                <a href="{{ route('siswa.profil') }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2 fw-bold px-3 py-2" style="border-radius: 8px; font-size: 0.82rem;">
+                    <i class="bi bi-pencil-square"></i> Periksa / Edit Biodata
+                </a>
+            @else
+                <a href="{{ route('siswa.profil') }}" class="btn btn-sm btn-warning d-inline-flex align-items-center gap-2 fw-bold px-3 py-2" style="border-radius: 8px; font-size: 0.82rem; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25);">
+                    <i class="bi bi-shield-check"></i> Konfirmasi Biodata Sekarang
+                </a>
+            @endif
+        </div>
+    </div>
+
+    @if(!$user->is_biodata_confirmed)
+        <div class="p-3 mb-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#FFFBEB; border: 1px solid #FDE68A;">
+            <div class="small" style="color: #92400E; font-size: 0.82rem;">
+                <i class="bi bi-info-circle-fill me-1"></i> <strong>Langkah Wajib:</strong> Kamu wajib memeriksa dan mengonfirmasi kebenaran biodata diri kamu terlebih dahulu agar modul <strong>Tes Minat RIASEC</strong> dan <strong>Rencana Kelulusan</strong> terbuka.
+            </div>
+            <a href="{{ route('siswa.profil') }}" class="btn btn-warning btn-sm fw-bold px-3 py-1 text-dark" style="border-radius: 6px; font-size: 0.78rem;">
+                <i class="bi bi-shield-check me-1"></i> Buka & Konfirmasi Biodata
+            </a>
+        </div>
+    @endif
+
+    {{-- Grid Data Diri --}}
+    <div class="row g-3">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div style="font-size: 0.72rem; color: #667085;">Nama Siswa</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #1F2937;">{{ $user->name }}</div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div style="font-size: 0.72rem; color: #667085;">Jenis Kelamin</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #1F2937;">
+                {{ $user->jenis_kelamin_text }} ({{ $user->jk ?? '-' }})
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div style="font-size: 0.72rem; color: #667085;">NIK (KTP/KK)</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #1F2937; font-family: monospace;">
+                {{ $user->nik ?? '-' }}
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div style="font-size: 0.72rem; color: #667085;">No HP / WhatsApp</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #1F2937;">
+                @if($user->no_hp)
+                    <i class="bi bi-whatsapp text-success me-1"></i>{{ $user->no_hp }}
+                @else
+                    <span class="text-danger small"><i class="bi bi-exclamation-circle me-1"></i>Belum terisi</span>
+                @endif
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-6">
+            <div style="font-size: 0.72rem; color: #667085;">Tempat, Tanggal Lahir</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #1F2937;">
+                {{ $user->ttl_ringkas }}
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-6">
+            <div style="font-size: 0.72rem; color: #667085;">Alamat & Kecamatan</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #1F2937;">
+                {{ $user->alamat ? $user->alamat . ', ' : '' }}{{ $user->kecamatan ? $user->kecamatan . ', ' : '' }}{{ $user->kabupaten_kota ?: 'Kota Bandar Lampung' }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- 3 STATUS TRACKER CARDS --}}
 <div class="row g-3 mb-4">
     {{-- Status 1: Tes Minat & Jangkar Karier --}}
     <div class="col-12 col-md-4">
         <div class="card-pro p-3 h-100 d-flex flex-column justify-content-between" style="background:#ffffff; border:1px solid #E4E7EC; border-radius:12px; box-shadow:0 1px 2px rgba(16,24,40,0.04);">
             <div class="d-flex align-items-center justify-content-between mb-2">
                 <span style="font-size: 0.75rem; font-weight: 600; color: #667085; text-transform: uppercase;">
-                    1. Tes Minat & Jangkar Karier
+                    1. Tes Minat (RIASEC)
                 </span>
                 @if($careerResult)
                     <span class="badge" style="background: #F0FDF4; color: #276749; border: 1px solid #B7E4C7; border-radius: 6px; font-size: 0.72rem; font-weight: 600; padding: 4px 8px;">
                         <i class="bi bi-check2"></i> Selesai
+                    </span>
+                @elseif(!$user->is_biodata_confirmed)
+                    <span class="badge" style="background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 0.72rem; font-weight: 600; padding: 4px 8px;">
+                        <i class="bi bi-lock-fill me-1"></i> Terkunci
                     </span>
                 @else
                     <span class="badge" style="background: #FFF7E6; color: #8A6116; border: 1px solid #F1D99B; border-radius: 6px; font-size: 0.72rem; font-weight: 600; padding: 4px 8px;">
@@ -81,6 +180,13 @@
                             {{ $careerResult->execution_path_badge['label'] }}
                         </span>
                     </div>
+                @elseif(!$user->is_biodata_confirmed)
+                    <div style="font-size: 0.88rem; font-weight: 700; color: #64748B;" class="mb-1">
+                        <i class="bi bi-lock-fill text-muted me-1"></i> Modul Terkunci
+                    </div>
+                    <div style="font-size: 0.78rem; color: #667085;">
+                        Konfirmasi kebenaran biodata diri kamu terlebih dahulu untuk membuka tes ini.
+                    </div>
                 @else
                     <div style="font-size: 0.88rem; font-weight: 700; color: #1F2937;" class="mb-1">
                         72 Pertanyaan (RIASEC + Anchors)
@@ -95,6 +201,10 @@
                 @if($careerResult)
                     <a href="{{ route('tes.hasil') }}" class="btn-brand-outline w-100 text-center py-2" style="font-size: 0.78rem; min-height:36px;">
                         <i class="bi bi-bar-chart-fill me-1"></i> Lihat Hasil & Rekomendasi
+                    </a>
+                @elseif(!$user->is_biodata_confirmed)
+                    <a href="{{ route('siswa.profil') }}" class="btn btn-warning w-100 text-center py-2 fw-bold" style="font-size: 0.78rem; min-height:36px; border-radius: 6px;">
+                        <i class="bi bi-shield-check me-1"></i> Konfirmasi Biodata Dulu
                     </a>
                 @else
                     <a href="{{ route('tes.mulai') }}" class="btn-brand-primary w-100 text-center py-2" style="font-size: 0.78rem; min-height:36px;">
@@ -115,6 +225,10 @@
                 @if($pilihan)
                     <span class="badge" style="background: #F0FDF4; color: #276749; border: 1px solid #B7E4C7; border-radius: 6px; font-size: 0.72rem; font-weight: 600; padding: 4px 8px;">
                         <i class="bi bi-check2"></i> Selesai
+                    </span>
+                @elseif(!$user->is_biodata_confirmed || !$careerResult)
+                    <span class="badge" style="background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 0.72rem; font-weight: 600; padding: 4px 8px;">
+                        <i class="bi bi-lock-fill me-1"></i> Terkunci
                     </span>
                 @else
                     <span class="badge" style="background: #FFF7E6; color: #8A6116; border: 1px solid #F1D99B; border-radius: 6px; font-size: 0.72rem; font-weight: 600; padding: 4px 8px;">
@@ -158,6 +272,20 @@
                             {{ $pilihan->keterangan_usaha ?: 'Merintis usaha bisnis mandiri' }}
                         @endif
                     </div>
+                @elseif(!$user->is_biodata_confirmed)
+                    <div style="font-size: 0.88rem; font-weight: 700; color: #64748B;" class="mb-1">
+                        <i class="bi bi-lock-fill text-muted me-1"></i> Menunggu Konfirmasi Biodata
+                    </div>
+                    <div style="font-size: 0.78rem; color: #667085;">
+                        Konfirmasi biodata dan selesaikan tes RIASEC terlebih dahulu.
+                    </div>
+                @elseif(!$careerResult)
+                    <div style="font-size: 0.88rem; font-weight: 700; color: #64748B;" class="mb-1">
+                        <i class="bi bi-lock-fill text-muted me-1"></i> Menunggu Tes Selesai
+                    </div>
+                    <div style="font-size: 0.78rem; color: #667085;">
+                        Selesaikan Tes Minat RIASEC terlebih dahulu sebelum memilih rencana.
+                    </div>
                 @else
                     <div style="font-size: 0.88rem; font-weight: 700; color: #1F2937;" class="mb-1">
                         Kuliah / Bekerja / Usaha
@@ -172,6 +300,10 @@
                 @if($pilihan)
                     <a href="{{ route('siswa.pilihan-saya') }}" class="btn-brand-outline w-100 text-center py-2" style="font-size: 0.78rem; min-height:36px;">
                         <i class="bi bi-file-earmark-person me-1"></i> Lihat Bukti Pilihan
+                    </a>
+                @elseif(!$user->is_biodata_confirmed)
+                    <a href="{{ route('siswa.profil') }}" class="btn-brand-outline w-100 text-center py-2" style="font-size: 0.78rem; min-height:36px;">
+                        <i class="bi bi-lock me-1"></i> Konfirmasi Biodata Dulu
                     </a>
                 @elseif($careerResult)
                     <a href="{{ route('siswa.rencana') }}" class="btn-brand-primary w-100 text-center py-2" style="font-size: 0.78rem; min-height:36px;">
@@ -193,29 +325,29 @@
                 <span style="font-size: 0.75rem; font-weight: 600; color: #667085; text-transform: uppercase;">
                     3. Profil Kelengkapan
                 </span>
+                @php
+                    $progressPct = ($user->is_biodata_confirmed ? 34 : 0) + ($careerResult ? 33 : 0) + ($pilihan ? 33 : 0);
+                @endphp
                 @if($user->is_data_lengkap)
                     <span class="badge" style="background: #F0FDF4; color: #276749; border: 1px solid #B7E4C7; border-radius: 6px; font-size: 0.72rem; font-weight: 600; padding: 4px 8px;">
                         Lengkap 100%
                     </span>
                 @else
                     <span class="badge" style="background: #FFF7E6; color: #8A6116; border: 1px solid #F1D99B; border-radius: 6px; font-size: 0.72rem; font-weight: 600; padding: 4px 8px;">
-                        {{ ($careerResult ? 50 : 0) + ($pilihan ? 50 : 0) }}% Selesai
+                        {{ $progressPct }}% Selesai
                     </span>
                 @endif
             </div>
 
             <div>
                 <div class="progress mb-2" style="height: 6px; border-radius: 3px; background: #F2F4F7;">
-                    @php
-                        $progressPct = ($careerResult ? 50 : 0) + ($pilihan ? 50 : 0);
-                    @endphp
                     <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $progressPct }}%" aria-valuenow="{{ $progressPct }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <div style="font-size: 0.78rem; color: #667085;">
                     @if($user->is_data_lengkap)
-                        Seluruh berkas dan profil perencanaan telah lengkap.
+                        Seluruh berkas biodata, tes, dan rencana telah lengkap tersimpan.
                     @else
-                        Lengkapi kedua tahap di samping untuk menyelesaikan pendataan sekolah.
+                        Lengkapi konfirmasi biodata, tes minat, dan rencana untuk menyelesaikan pendataan sekolah.
                     @endif
                 </div>
             </div>

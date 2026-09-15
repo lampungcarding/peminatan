@@ -127,9 +127,18 @@
                     <tr>
                         <td style="text-align: center; color: #64748b; font-weight: 600;">{{ $siswaList->firstItem() + $index }}</td>
                         <td>
-                            <div style="font-weight: 700; color: #0f172a;">{{ $siswa->name }}</div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="font-weight: 700; color: #0f172a;">{{ $siswa->name }}</span>
+                                @if($siswa->jk)
+                                    <span class="badge {{ $siswa->jk === 'L' ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle' }}" style="font-size: 0.68rem; padding: 2px 6px; border-radius: 4px;">
+                                        {{ $siswa->jk }}
+                                    </span>
+                                @endif
+                            </div>
                             <div style="font-size: 0.74rem; color: #64748b;">
                                 {{ $siswa->email }}
+                                @if($siswa->nik) • <span style="font-family: monospace;">NIK: {{ $siswa->nik }}</span> @endif
+                                @if($siswa->no_hp) • <i class="bi bi-whatsapp text-success"></i> {{ $siswa->no_hp }} @endif
                             </div>
                         </td>
                         <td style="font-family: monospace; color: #475569; font-weight: 600;">
@@ -238,11 +247,19 @@
                                                         <label class="form-label fw-semibold small text-dark mb-1">Nama Lengkap Siswa <span class="text-danger">*</span></label>
                                                         <input type="text" name="name" class="form-control" value="{{ $siswa->name }}" required style="border-radius: 8px; font-size: 0.88rem;">
                                                     </div>
-                                                    <div class="col-12 col-md-6">
-                                                        <label class="form-label fw-semibold small text-dark mb-1">NISN (Nomor Induk Siswa Nasional) <span class="text-danger">*</span></label>
+                                                    <div class="col-12 col-md-3">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">NISN <span class="text-danger">*</span></label>
                                                         <input type="text" name="nisn" class="form-control" value="{{ $siswa->nisn }}" required style="border-radius: 8px; font-size: 0.88rem;">
                                                     </div>
-                                                    <div class="col-12 col-md-6">
+                                                    <div class="col-12 col-md-3">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">Jenis Kelamin (L/P)</label>
+                                                        <select name="jk" class="form-select" style="border-radius: 8px; font-size: 0.88rem;">
+                                                            <option value="" {{ empty($siswa->jk) ? 'selected' : '' }}>- Pilih -</option>
+                                                            <option value="L" {{ $siswa->jk === 'L' ? 'selected' : '' }}>L (Laki-laki)</option>
+                                                            <option value="P" {{ $siswa->jk === 'P' ? 'selected' : '' }}>P (Perempuan)</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
                                                         <label class="form-label fw-semibold small text-dark mb-1">Kelas <span class="text-danger">*</span></label>
                                                         <select name="kelas" class="form-select" required style="border-radius: 8px; font-size: 0.88rem;">
                                                             @foreach($kelasList as $k)
@@ -251,6 +268,18 @@
                                                                 </option>
                                                             @endforeach
                                                         </select>
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">NIK (KTP/KK)</label>
+                                                        <input type="text" name="nik" class="form-control" value="{{ $siswa->nik }}" placeholder="16 digit NIK" style="border-radius: 8px; font-size: 0.88rem;">
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">NIPD</label>
+                                                        <input type="text" name="nipd" class="form-control" value="{{ $siswa->nipd }}" placeholder="Nomor Induk Peserta Didik" style="border-radius: 8px; font-size: 0.88rem;">
+                                                    </div>
+                                                    <div class="col-12 col-md-6">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">No HP / WhatsApp</label>
+                                                        <input type="text" name="no_hp" class="form-control" value="{{ $siswa->no_hp }}" placeholder="Contoh: 08123456789" style="border-radius: 8px; font-size: 0.88rem;">
                                                     </div>
                                                     <div class="col-12 col-md-6">
                                                         <label class="form-label fw-semibold small text-dark mb-1">Email / Login ID</label>
@@ -263,6 +292,34 @@
                                                     <div class="col-12 col-md-6">
                                                         <label class="form-label fw-semibold small text-dark mb-1">Tanggal Lahir</label>
                                                         <input type="date" name="tanggal_lahir" class="form-control" value="{{ $siswa->tanggal_lahir }}" style="border-radius: 8px; font-size: 0.88rem;">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">Alamat Domisili (Jalan/Gang)</label>
+                                                        <input type="text" name="alamat" class="form-control" value="{{ $siswa->alamat }}" placeholder="Contoh: Jl. Perintis Kemerdekaan No. 10" style="border-radius: 8px; font-size: 0.88rem;">
+                                                    </div>
+                                                    <div class="col-6 col-md-3">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">RT</label>
+                                                        <input type="text" name="rt" class="form-control" value="{{ $siswa->rt }}" placeholder="RT" style="border-radius: 8px; font-size: 0.88rem;">
+                                                    </div>
+                                                    <div class="col-6 col-md-3">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">RW</label>
+                                                        <input type="text" name="rw" class="form-control" value="{{ $siswa->rw }}" placeholder="RW" style="border-radius: 8px; font-size: 0.88rem;">
+                                                    </div>
+                                                    <div class="col-12 col-md-3">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">Kelurahan / Desa</label>
+                                                        <input type="text" name="kelurahan" class="form-control" value="{{ $siswa->kelurahan }}" placeholder="Kelurahan" style="border-radius: 8px; font-size: 0.88rem;">
+                                                    </div>
+                                                    <div class="col-12 col-md-3">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">Kecamatan</label>
+                                                        <input type="text" name="kecamatan" class="form-control" value="{{ $siswa->kecamatan }}" placeholder="Kecamatan" style="border-radius: 8px; font-size: 0.88rem;">
+                                                    </div>
+                                                    <div class="col-12 col-md-6">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">Kabupaten / Kota</label>
+                                                        <input type="text" name="kabupaten_kota" class="form-control" value="{{ $siswa->kabupaten_kota ?: 'Kota Bandar Lampung' }}" placeholder="Kota Bandar Lampung" style="border-radius: 8px; font-size: 0.88rem;">
+                                                    </div>
+                                                    <div class="col-12 col-md-6">
+                                                        <label class="form-label fw-semibold small text-dark mb-1">Kode Pos</label>
+                                                        <input type="text" name="kode_pos" class="form-control" value="{{ $siswa->kode_pos }}" placeholder="Kode Pos" style="border-radius: 8px; font-size: 0.88rem;">
                                                     </div>
                                                     <div class="col-12">
                                                         <label class="form-label fw-semibold small text-dark mb-1">Reset Password (Opsional)</label>
@@ -329,11 +386,19 @@
                             <label class="form-label fw-semibold small text-dark mb-1">Nama Lengkap Siswa <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control" placeholder="Contoh: AHMAD ZAKY" required style="border-radius: 8px; font-size: 0.88rem;">
                         </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label fw-semibold small text-dark mb-1">NISN (Nomor Induk Siswa Nasional) <span class="text-danger">*</span></label>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label fw-semibold small text-dark mb-1">NISN <span class="text-danger">*</span></label>
                             <input type="text" name="nisn" class="form-control" placeholder="Contoh: 0061234567" required style="border-radius: 8px; font-size: 0.88rem;">
                         </div>
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-3">
+                            <label class="form-label fw-semibold small text-dark mb-1">Jenis Kelamin (L/P)</label>
+                            <select name="jk" class="form-select" style="border-radius: 8px; font-size: 0.88rem;">
+                                <option value="" selected>- Pilih -</option>
+                                <option value="L">L (Laki-laki)</option>
+                                <option value="P">P (Perempuan)</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
                             <label class="form-label fw-semibold small text-dark mb-1">Kelas Siswa <span class="text-danger">*</span></label>
                             <select name="kelas" class="form-select" required style="border-radius: 8px; font-size: 0.88rem;">
                                 <option value="" disabled selected>-- Pilih Kelas Siswa --</option>
@@ -341,6 +406,18 @@
                                     <option value="{{ $k }}">{{ $k }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold small text-dark mb-1">NIK (KTP/KK)</label>
+                            <input type="text" name="nik" class="form-control" placeholder="16 digit NIK" style="border-radius: 8px; font-size: 0.88rem;">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-semibold small text-dark mb-1">NIPD</label>
+                            <input type="text" name="nipd" class="form-control" placeholder="NIPD siswa" style="border-radius: 8px; font-size: 0.88rem;">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-semibold small text-dark mb-1">No HP / WhatsApp</label>
+                            <input type="text" name="no_hp" class="form-control" placeholder="Contoh: 08123456789" style="border-radius: 8px; font-size: 0.88rem;">
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold small text-dark mb-1">Email Akun (Opsional)</label>
@@ -353,6 +430,26 @@
                         <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold small text-dark mb-1">Tanggal Lahir (Opsional)</label>
                             <input type="date" name="tanggal_lahir" class="form-control" style="border-radius: 8px; font-size: 0.88rem;">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-dark mb-1">Alamat Lengkap</label>
+                            <input type="text" name="alamat" class="form-control" placeholder="Jl. Contoh No. 123" style="border-radius: 8px; font-size: 0.88rem;">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label fw-semibold small text-dark mb-1">RT</label>
+                            <input type="text" name="rt" class="form-control" placeholder="RT" style="border-radius: 8px; font-size: 0.88rem;">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label fw-semibold small text-dark mb-1">RW</label>
+                            <input type="text" name="rw" class="form-control" placeholder="RW" style="border-radius: 8px; font-size: 0.88rem;">
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label fw-semibold small text-dark mb-1">Kelurahan</label>
+                            <input type="text" name="kelurahan" class="form-control" placeholder="Kelurahan" style="border-radius: 8px; font-size: 0.88rem;">
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label fw-semibold small text-dark mb-1">Kecamatan</label>
+                            <input type="text" name="kecamatan" class="form-control" placeholder="Kecamatan" style="border-radius: 8px; font-size: 0.88rem;">
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold small text-dark mb-1">Password Akun (Opsional)</label>

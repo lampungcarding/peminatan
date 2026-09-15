@@ -246,6 +246,18 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'nisn' => 'required|string|max:20|unique:users,nisn',
             'kelas' => 'required|string|max:50',
+            'nipd' => 'nullable|string|max:50',
+            'jk' => 'nullable|in:L,P',
+            'nik' => 'nullable|string|max:30',
+            'alamat' => 'nullable|string',
+            'rt' => 'nullable|string|max:10',
+            'rw' => 'nullable|string|max:10',
+            'dusun' => 'nullable|string|max:100',
+            'kelurahan' => 'nullable|string|max:100',
+            'kecamatan' => 'nullable|string|max:100',
+            'kabupaten_kota' => 'nullable|string|max:100',
+            'kode_pos' => 'nullable|string|max:10',
+            'no_hp' => 'nullable|string|max:30',
             'tempat_lahir' => 'nullable|string|max:100',
             'tanggal_lahir' => 'nullable|date',
             'email' => 'nullable|email|max:255|unique:users,email',
@@ -277,6 +289,18 @@ class AdminController extends Controller
             'password' => $password,
             'role' => 'siswa',
             'kelas' => $request->kelas,
+            'nipd' => $request->nipd,
+            'jk' => $request->jk,
+            'nik' => $request->nik,
+            'alamat' => $request->alamat,
+            'rt' => $request->rt,
+            'rw' => $request->rw,
+            'dusun' => $request->dusun,
+            'kelurahan' => $request->kelurahan,
+            'kecamatan' => $request->kecamatan,
+            'kabupaten_kota' => $request->kabupaten_kota ?: 'Kota Bandar Lampung',
+            'kode_pos' => $request->kode_pos,
+            'no_hp' => $request->no_hp,
             'tempat_lahir' => $request->tempat_lahir,
             'tanggal_lahir' => $request->tanggal_lahir,
         ]);
@@ -296,6 +320,18 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'nisn' => 'required|string|max:20|unique:users,nisn,' . $id,
             'kelas' => 'required|string|max:50',
+            'nipd' => 'nullable|string|max:50',
+            'jk' => 'nullable|in:L,P',
+            'nik' => 'nullable|string|max:30',
+            'alamat' => 'nullable|string',
+            'rt' => 'nullable|string|max:10',
+            'rw' => 'nullable|string|max:10',
+            'dusun' => 'nullable|string|max:100',
+            'kelurahan' => 'nullable|string|max:100',
+            'kecamatan' => 'nullable|string|max:100',
+            'kabupaten_kota' => 'nullable|string|max:100',
+            'kode_pos' => 'nullable|string|max:10',
+            'no_hp' => 'nullable|string|max:30',
             'tempat_lahir' => 'nullable|string|max:100',
             'tanggal_lahir' => 'nullable|date',
             'email' => 'nullable|email|max:255|unique:users,email,' . $id,
@@ -316,6 +352,18 @@ class AdminController extends Controller
             'name' => $request->name,
             'nisn' => $request->nisn,
             'kelas' => $request->kelas,
+            'nipd' => $request->nipd,
+            'jk' => $request->jk,
+            'nik' => $request->nik,
+            'alamat' => $request->alamat,
+            'rt' => $request->rt,
+            'rw' => $request->rw,
+            'dusun' => $request->dusun,
+            'kelurahan' => $request->kelurahan,
+            'kecamatan' => $request->kecamatan,
+            'kabupaten_kota' => $request->kabupaten_kota ?: 'Kota Bandar Lampung',
+            'kode_pos' => $request->kode_pos,
+            'no_hp' => $request->no_hp,
             'tempat_lahir' => $request->tempat_lahir,
             'tanggal_lahir' => $request->tanggal_lahir,
         ];
@@ -673,6 +721,44 @@ class AdminController extends Controller
     }
 
     /**
+     * Halaman Cetak Form Rekapitulasi Sekolah (Format Blanko / Form Fisik Sekolah Sesuai Blanko).
+     */
+    public function cetakLaporan(Request $request)
+    {
+        $kelasList = $this->getKelasListForUser();
+        $selectedKelas = $request->get('kelas', $kelasList->first() ?? 'Semua');
+        $tahunLulus = $request->get('tahun_lulus', 'TAHUN 2025');
+        $mode = $request->get('mode', 'isi'); // 'isi' atau 'kosong'
+
+        $query = $this->applySiswaScope(User::where('role', 'siswa')->with('pilihanSetelahLulus'));
+
+        if ($selectedKelas && $selectedKelas !== 'Semua') {
+            $query->where('kelas', $selectedKelas);
+        }
+
+        $students = $query->orderBy('name')->get();
+
+        $countL = $students->where('jk', 'L')->count();
+        $countP = $students->where('jk', 'P')->count();
+        $totalCount = $students->count();
+
+        $currentUser = auth()->user();
+        $namaGuruBk = $currentUser->isGuruBk() ? $currentUser->name : 'Guru Bimbingan Konseling';
+
+        return view('admin.cetak_laporan', compact(
+            'kelasList',
+            'selectedKelas',
+            'tahunLulus',
+            'mode',
+            'students',
+            'countL',
+            'countP',
+            'totalCount',
+            'namaGuruBk'
+        ));
+    }
+
+    /**
      * Export Komprehensif Seluruh Data Siswa (Excel/CSV UTF-8).
      */
     public function exportLaporan(Request $request)
@@ -701,7 +787,7 @@ class AdminController extends Controller
 
         $students = $query->orderBy('kelas')->orderBy('name')->get();
 
-        $filename = 'laporan_karier_studi_siswa_' . date('Ymd_His') . '.csv';
+        $filename = 'laporan_lengkap_siswa_kelas_12_' . date('Ymd_His') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -716,21 +802,26 @@ class AdminController extends Controller
             fputcsv($file, [
                 'No',
                 'Nama Siswa',
+                'NIPD',
+                'L/P',
                 'NISN',
+                'NIK',
                 'Kelas',
                 'Tempat Lahir',
                 'Tanggal Lahir',
-                'Status Tes',
-                'Holland Code',
-                'Tipe Dominan',
-                'Skor Realistic (R)',
-                'Skor Investigative (I)',
-                'Skor Artistic (A)',
-                'Skor Social (S)',
-                'Skor Enterprising (E)',
-                'Skor Conventional (C)',
-                'Status Rencana',
-                'Rencana Pilihan',
+                'Alamat',
+                'RT',
+                'RW',
+                'Dusun',
+                'Kelurahan',
+                'Kecamatan',
+                'Kabupaten/Kota',
+                'Kode Pos',
+                'HP/WA',
+                'Minat: Bekerja',
+                'Minat: Melanjutkan',
+                'Minat: Wirausaha',
+                'Keterangan Minat Pilihan',
                 'Perguruan Tinggi',
                 'Program Studi',
                 'Jenjang',
@@ -739,6 +830,10 @@ class AdminController extends Controller
                 'Keterangan Pekerjaan',
                 'Bidang Usaha',
                 'Keterangan Usaha',
+                'Status Tes RIASEC',
+                'Holland Code',
+                'Tipe Dominan',
+                'Status Rencana',
                 'Status Kelengkapan',
                 'Waktu Submit Rencana',
             ]);
@@ -751,24 +846,46 @@ class AdminController extends Controller
                 $statusRencana = $p ? 'Sudah Memilih' : 'Belum Memilih';
                 $statusLengkap = ($cr && $p) ? 'Lengkap' : 'Belum Lengkap';
 
+                // Kolom checklist minat
+                $minatBekerja = ($p && $p->rencana === 'bekerja') ? 'V' : '-';
+                $minatMelanjutkan = ($p && $p->rencana === 'kuliah') ? 'V' : '-';
+                $minatWirausaha = ($p && $p->rencana === 'berwirausaha') ? 'V' : '-';
+
+                // Keterangan minat ringkas
+                $ketMinat = '-';
+                if ($p) {
+                    if ($p->rencana === 'kuliah') {
+                        $ketMinat = ($p->nama_perguruan_tinggi ?: '') . ($p->nama_program_studi ? ' - ' . $p->nama_program_studi : '');
+                    } elseif ($p->rencana === 'bekerja') {
+                        $ketMinat = ($p->bidang_pekerjaan ?: '') . ($p->keterangan_pekerjaan ? ' (' . $p->keterangan_pekerjaan . ')' : '');
+                    } elseif ($p->rencana === 'berwirausaha') {
+                        $ketMinat = ($p->bidang_usaha ?: '') . ($p->keterangan_usaha ? ' (' . $p->keterangan_usaha . ')' : '');
+                    }
+                }
+
                 $row = [
                     $index + 1,
                     $s->name,
+                    $s->nipd ?? '-',
+                    $s->jk ?? '-',
                     $s->nisn ?? '-',
+                    $s->nik ?? '-',
                     $s->kelas ?? '-',
                     $s->tempat_lahir ?? '-',
                     $s->tanggal_lahir ?? '-',
-                    $statusTes,
-                    $cr->holland_code ?? '-',
-                    $cr->dominant_type ?? '-',
-                    $cr->realistic_score ?? 0,
-                    $cr->investigative_score ?? 0,
-                    $cr->artistic_score ?? 0,
-                    $cr->social_score ?? 0,
-                    $cr->enterprising_score ?? 0,
-                    $cr->conventional_score ?? 0,
-                    $statusRencana,
-                    $p ? ucfirst($p->rencana) : '-',
+                    $s->alamat ?? '-',
+                    $s->rt ?? '-',
+                    $s->rw ?? '-',
+                    $s->dusun ?? '-',
+                    $s->kelurahan ?? '-',
+                    $s->kecamatan ?? '-',
+                    $s->kabupaten_kota ?? 'Kota Bandar Lampung',
+                    $s->kode_pos ?? '-',
+                    $s->no_hp ?? '-',
+                    $minatBekerja,
+                    $minatMelanjutkan,
+                    $minatWirausaha,
+                    $ketMinat,
                     $p->nama_perguruan_tinggi ?? '-',
                     $p->nama_program_studi ?? '-',
                     $p->jenjang ?? '-',
@@ -777,6 +894,10 @@ class AdminController extends Controller
                     $p->keterangan_pekerjaan ?? '-',
                     $p->bidang_usaha ?? '-',
                     $p->keterangan_usaha ?? '-',
+                    $statusTes,
+                    $cr->holland_code ?? '-',
+                    $cr->dominant_type ?? '-',
+                    $statusRencana,
                     $statusLengkap,
                     $p && $p->submitted_at ? Carbon::parse($p->submitted_at)->format('d-m-Y H:i') : '-',
                 ];

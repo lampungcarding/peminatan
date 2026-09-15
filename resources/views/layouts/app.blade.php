@@ -493,6 +493,12 @@
                     <a href="{{ route('siswa.dashboard') }}" class="nav-app-link {{ request()->routeIs('siswa.dashboard') ? 'active' : '' }}">
                         <i class="bi bi-house-door"></i> Beranda
                     </a>
+                    <a href="{{ route('siswa.profil') }}" class="nav-app-link {{ request()->routeIs('siswa.profil*') ? 'active' : '' }}">
+                        <i class="bi bi-person-vcard"></i> Biodata Diri
+                        @if(!auth()->user()->is_biodata_confirmed)
+                            <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem; font-weight: 700; padding: 2px 6px;">Wajib</span>
+                        @endif
+                    </a>
                     <a href="{{ route('tes.index') }}" class="nav-app-link {{ request()->routeIs('tes.*') ? 'active' : '' }}">
                         <i class="bi bi-lightning-charge"></i> Tes Minat
                     </a>
@@ -510,17 +516,31 @@
 
                 {{-- User Profile & Logout on Desktop --}}
                 <div class="d-flex align-items-center gap-2 gap-sm-3">
-                    <div class="student-profile-chip">
-                        <div class="student-avatar">
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                        </div>
-                        <div class="student-chip-info">
-                            <div class="student-chip-name">{{ auth()->user()->name }}</div>
-                            <div class="student-chip-class">
-                                {{ auth()->user()->kelas ?? (auth()->user()->isAdmin() ? 'Administrator' : 'Siswa') }}
+                    @if(auth()->user()->isSiswa())
+                        <a href="{{ route('siswa.profil') }}" class="student-profile-chip text-decoration-none" title="Lihat & Perbarui Biodata Diri">
+                            <div class="student-avatar">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                            <div class="student-chip-info">
+                                <div class="student-chip-name">{{ auth()->user()->name }}</div>
+                                <div class="student-chip-class">
+                                    {{ auth()->user()->kelas ?? 'Siswa' }}
+                                </div>
+                            </div>
+                        </a>
+                    @else
+                        <div class="student-profile-chip">
+                            <div class="student-avatar">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                            <div class="student-chip-info">
+                                <div class="student-chip-name">{{ auth()->user()->name }}</div>
+                                <div class="student-chip-class">
+                                    {{ auth()->user()->isAdmin() ? 'Administrator' : 'Guru BK' }}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
 
                     <form action="{{ route('logout') }}" method="POST" class="d-none d-md-block">
                         @csrf
@@ -543,10 +563,19 @@
             <span>Beranda</span>
         </a>
 
+        <a href="{{ route('siswa.profil') }}"
+           class="mobile-nav-link {{ request()->routeIs('siswa.profil*') ? 'active' : '' }} position-relative">
+            <i class="bi bi-person-vcard{{ request()->routeIs('siswa.profil*') ? '-fill' : '' }}"></i>
+            <span>Biodata</span>
+            @if(!auth()->user()->is_biodata_confirmed)
+                <span class="position-absolute top-1 start-50 translate-middle p-1 bg-danger border border-light rounded-circle" style="margin-left: 12px; margin-top: 6px;"></span>
+            @endif
+        </a>
+
         <a href="{{ route('tes.index') }}"
            class="mobile-nav-link {{ request()->routeIs('tes.*') ? 'active' : '' }}">
             <i class="bi bi-lightning-charge{{ request()->routeIs('tes.*') ? '-fill' : '' }}"></i>
-            <span>Tes Minat</span>
+            <span>Tes</span>
         </a>
 
         <a href="{{ route('siswa.rencana') }}"
