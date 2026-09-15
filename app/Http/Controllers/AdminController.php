@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CareerAnswer;
 use App\Models\CareerQuestion;
 use App\Models\CareerRecommendation;
 use App\Models\CareerResult;
@@ -436,6 +437,55 @@ class AdminController extends Controller
         $dominantTypes = ['Realistic', 'Investigative', 'Artistic', 'Social', 'Enterprising', 'Conventional'];
 
         return view('admin.hasil_tes', compact('hasilList', 'kelasList', 'dominantTypes'));
+    }
+
+    /**
+     * Preview detail hasil tes RIASEC, Holland Code, Career Anchors, dan 72 butir jawaban siswa.
+     */
+    public function detailTes($id)
+    {
+        $careerResult = $this->applyUserRelationScope(
+            CareerResult::with(['user.pilihanSetelahLulus'])
+        )->findOrFail($id);
+
+        $user = $careerResult->user;
+
+        // Ambil 72 jawaban butir soal siswa yang diurutkan per order_num
+        $answers = CareerAnswer::with('question')
+            ->where('user_id', $user->id)
+            ->join('career_questions', 'career_answers.question_id', '=', 'career_questions.id')
+            ->orderBy('career_questions.order_num')
+            ->select('career_answers.*')
+            ->get();
+
+        $riasecAnswers = $answers->where('question.section', 'riasec');
+        $anchorAnswers = $answers->where('question.section', 'career_anchor');
+
+        // Rekomendasi Linier & Lintas Minat
+        $recommendations = $this->riasecService->getRecommendationsForCode($careerResult->holland_code, $user);
+
+        // Laporan Kolaborasi Sintesis / Narasi Psikologis
+        $collaborationReport = null;
+        if ($careerResult->collaboration_narrative) {
+            $collaborationReport = json_decode($careerResult->collaboration_narrative, true);
+        }
+        if (!$collaborationReport) {
+            $detectedMajor = $this->riasecService->detectStudentMajor($user);
+            $scoresMap = $careerResult->scores_map;
+            $anchorScoresMap = $careerResult->anchor_scores_map;
+            $rScores = array_combine(array_keys($scoresMap), array_column($scoresMap, 'score'));
+            $aScores = array_combine(array_keys($anchorScoresMap), array_column($anchorScoresMap, 'score'));
+            $collaborationReport = $this->riasecService->synthesizeCollaborationReport($user, $rScores, $aScores, $detectedMajor);
+        }
+
+        return view('admin.detail_tes', compact(
+            'careerResult',
+            'user',
+            'riasecAnswers',
+            'anchorAnswers',
+            'recommendations',
+            'collaborationReport'
+        ));
     }
 
     /**

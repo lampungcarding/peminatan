@@ -255,16 +255,44 @@
 
         <div>
             <label for="keteranganPekerjaan" class="form-label fw-bold" style="font-size:0.86rem; color:#451a03;">
-                Keterangan Pekerjaan yang Diminati (Opsional)
+                Keterangan Pekerjaan yang Diminati <span class="text-danger">*</span>
             </label>
             <input type="text"
                    name="keterangan_pekerjaan"
                    id="keteranganPekerjaan"
                    class="form-control form-control-pro"
-                   placeholder="Contoh: Ingin menjadi teknisi jaringan atau staff administrasi logistik">
-            <div class="form-text" style="font-size:0.75rem; color:#92400e;">
-                Tuliskan posisi, profesi, atau jenis industri yang kamu impikan.
+                   placeholder="Contoh: Ingin menjadi teknisi jaringan atau staff administrasi logistik"
+                   oninput="updateSubmitState()">
+            <div class="form-text mb-2" style="font-size:0.75rem; color:#92400e;">
+                Tuliskan posisi, profesi spesifik, atau jenis industri yang kamu impikan (wajib diisi).
             </div>
+
+            {{-- Saran Cepat Rekomendasi Profesi Hasil Tes --}}
+            @if(!empty($recommendations['profesi_linier']))
+                <div class="mt-2 p-2 px-3 rounded-3" style="background:#fffbeb; border:1px dashed #fcd34d;">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span style="font-size:0.72rem; font-weight:700; color:#b45309; text-transform:uppercase; letter-spacing:0.02em;">
+                            💡 Rekomendasi Teratas untukmu (Klik untuk Pilih Cepat):
+                        </span>
+                        <span class="badge bg-warning text-dark font-monospace" style="font-size:0.65rem;">
+                            {{ $recommendations['student_major_code'] ?? 'SMK' }}
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach(collect($recommendations['profesi_linier'])->take(5) as $pRec)
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-warning text-dark bg-white border-warning-subtle text-start py-1 px-2"
+                                    style="font-size:0.75rem; font-weight:600; border-radius:6px;"
+                                    onclick="pilihRekomendasiPekerjaan('{{ addslashes($pRec['name']) }}')">
+                                @if($loop->iteration <= 3)
+                                    <span class="badge bg-warning text-dark me-1" style="font-size:0.62rem;">#{{ $loop->iteration }}</span>
+                                @endif
+                                {{ $pRec['name'] }}
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -304,16 +332,44 @@
 
         <div>
             <label for="keteranganUsaha" class="form-label fw-bold" style="font-size:0.86rem; color:#2e1065;">
-                Jenis Usaha yang Diminati (Opsional)
+                Jenis Usaha yang Diminati <span class="text-danger">*</span>
             </label>
             <input type="text"
                    name="keterangan_usaha"
                    id="keteranganUsaha"
                    class="form-control form-control-pro"
-                   placeholder="Contoh: Membuka kedai kopi kekinian dan toko apparel custom">
-            <div class="form-text" style="font-size:0.75rem; color:#6d28d9;">
-                Tuliskan gambaran produk, layanan, atau konsep usaha rintisanmu.
+                   placeholder="Contoh: Membuka kedai kopi kekinian dan toko apparel custom"
+                   oninput="updateSubmitState()">
+            <div class="form-text mb-2" style="font-size:0.75rem; color:#6d28d9;">
+                Tuliskan gambaran produk, layanan, atau konsep usaha rintisanmu (wajib diisi).
             </div>
+
+            {{-- Saran Cepat Rekomendasi Usaha Hasil Tes --}}
+            @if(!empty($recommendations['usaha_linier']))
+                <div class="mt-2 p-2 px-3 rounded-3" style="background:#f5f3ff; border:1px dashed #c4b5fd;">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span style="font-size:0.72rem; font-weight:700; color:#6d28d9; text-transform:uppercase; letter-spacing:0.02em;">
+                            🚀 Rekomendasi Ide Usaha Teratas (Klik untuk Pilih Cepat):
+                        </span>
+                        <span class="badge text-white font-monospace" style="background:#7c3aed; font-size:0.65rem;">
+                            {{ $recommendations['student_major_code'] ?? 'SMK' }}
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach(collect($recommendations['usaha_linier'])->take(5) as $uRec)
+                            <button type="button" 
+                                    class="btn btn-sm text-dark bg-white border-primary-subtle text-start py-1 px-2"
+                                    style="font-size:0.75rem; font-weight:600; border-radius:6px; border:1px solid #ddd6fe;"
+                                    onclick="pilihRekomendasiUsaha('{{ addslashes($uRec['name']) }}')">
+                                @if($loop->iteration <= 3)
+                                    <span class="badge text-white me-1" style="background:#8b5cf6; font-size:0.62rem;">#{{ $loop->iteration }}</span>
+                                @endif
+                                {{ $uRec['name'] }}
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -539,6 +595,17 @@
         const labelMap = { 'kuliah': 'Jalur Kuliah', 'bekerja': 'Jalur Bekerja', 'berwirausaha': 'Jalur Wirausaha' };
         document.getElementById('stickyPlanLabel').textContent = labelMap[rencana] || 'Pilih Rencana';
 
+        // Set HTML5 required attributes according to active pathway
+        const bidangPekerjaan = document.getElementById('bidangPekerjaan');
+        const ketPekerjaan = document.getElementById('keteranganPekerjaan');
+        const bidangUsaha = document.getElementById('bidangUsaha');
+        const ketUsaha = document.getElementById('keteranganUsaha');
+
+        if (bidangPekerjaan) bidangPekerjaan.required = (rencana === 'bekerja');
+        if (ketPekerjaan) ketPekerjaan.required = (rencana === 'bekerja');
+        if (bidangUsaha) bidangUsaha.required = (rencana === 'berwirausaha');
+        if (ketUsaha) ketUsaha.required = (rencana === 'berwirausaha');
+
         // Show submit buttons
         document.getElementById('desktopSubmitSection').style.display = 'block';
         document.getElementById('mobileStickyBar').style.display = 'block';
@@ -745,6 +812,58 @@
         updateSubmitState();
     }
 
+    // === Pilih Rekomendasi Profesi & Auto Match Bidang ===
+    function pilihRekomendasiPekerjaan(nama) {
+        const input = document.getElementById('keteranganPekerjaan');
+        if (input) {
+            input.value = nama;
+            input.focus();
+        }
+        const select = document.getElementById('bidangPekerjaan');
+        if (select) {
+            const lower = nama.toLowerCase();
+            if (lower.includes('it') || lower.includes('developer') || lower.includes('web') || lower.includes('software') || lower.includes('jaringan') || lower.includes('teknisi') || lower.includes('cctv') || lower.includes('hardware')) {
+                select.value = 'Teknologi Informasi';
+            } else if (lower.includes('akuntansi') || lower.includes('keuangan') || lower.includes('bookkeeper') || lower.includes('pajak') || lower.includes('kasir') || lower.includes('teller') || lower.includes('bank') || lower.includes('audit')) {
+                select.value = 'Keuangan';
+            } else if (lower.includes('admin') || lower.includes('arsip') || lower.includes('sekretaris') || lower.includes('resepsionis') || lower.includes('office') || lower.includes('payroll')) {
+                select.value = 'Administrasi';
+            } else if (lower.includes('sales') || lower.includes('marketing') || lower.includes('streamer') || lower.includes('promosi') || lower.includes('ritel') || lower.includes('iklan')) {
+                select.value = 'Marketing';
+            } else if (lower.includes('chef') || lower.includes('cook') || lower.includes('baker') || lower.includes('barista') || lower.includes('hotel') || lower.includes('housekeeping') || lower.includes('tour') || lower.includes('guide') || lower.includes('jahit') || lower.includes('busana')) {
+                select.value = 'Lainnya';
+            }
+        }
+        updateSubmitState();
+    }
+
+    // === Pilih Rekomendasi Usaha & Auto Match Bidang ===
+    function pilihRekomendasiUsaha(nama) {
+        const input = document.getElementById('keteranganUsaha');
+        if (input) {
+            input.value = nama;
+            input.focus();
+        }
+        const select = document.getElementById('bidangUsaha');
+        if (select) {
+            const lower = nama.toLowerCase();
+            if (lower.includes('kafe') || lower.includes('kopi') || lower.includes('kuliner') || lower.includes('makanan') || lower.includes('katering') || lower.includes('roti') || lower.includes('donat')) {
+                select.value = 'Kuliner';
+            } else if (lower.includes('jahit') || lower.includes('busana') || lower.includes('pakaian') || lower.includes('fashion') || lower.includes('hijab') || lower.includes('kebaya')) {
+                select.value = 'Fashion';
+            } else if (lower.includes('software') || lower.includes('web') || lower.includes('jaringan') || lower.includes('it') || lower.includes('wifi') || lower.includes('komputer') || lower.includes('cctv')) {
+                select.value = 'Teknologi';
+            } else if (lower.includes('desain') || lower.includes('foto') || lower.includes('video') || lower.includes('sablon') || lower.includes('kreatif') || lower.includes('game') || lower.includes('branding')) {
+                select.value = 'Kreatif';
+            } else if (lower.includes('toko') || lower.includes('minimarket') || lower.includes('e-commerce') || lower.includes('dropshipper') || lower.includes('retail') || lower.includes('agen')) {
+                select.value = 'Perdagangan';
+            } else if (lower.includes('jasa') || lower.includes('cleaning') || lower.includes('cuci') || lower.includes('laundry') || lower.includes('sewa') || lower.includes('rental') || lower.includes('biro') || lower.includes('open trip')) {
+                select.value = 'Jasa';
+            }
+        }
+        updateSubmitState();
+    }
+
     // === Update Submit State ===
     function updateSubmitState() {
         const rencana = document.getElementById('inputRencana').value;
@@ -754,10 +873,12 @@
         let isValid = false;
         if (rencana === 'bekerja') {
             const bidang = document.getElementById('bidangPekerjaan').value;
-            isValid = Boolean(bidang);
+            const ket = document.getElementById('keteranganPekerjaan').value.trim();
+            isValid = Boolean(bidang && ket);
         } else if (rencana === 'berwirausaha') {
             const bidang = document.getElementById('bidangUsaha').value;
-            isValid = Boolean(bidang);
+            const ket = document.getElementById('keteranganUsaha').value.trim();
+            isValid = Boolean(bidang && ket);
         } else if (rencana === 'kuliah') {
             const ptId = document.getElementById('inputPtId').value;
             const prodiId = document.getElementById('inputProdiId').value;
@@ -768,12 +889,24 @@
         btnMobile.disabled = !isValid;
     }
 
-    // === Auto Select via URL Query Param (misal dari halaman rekomendasi: ?rencana=kuliah) ===
+    // === Auto Select via URL Query Param (misal dari halaman rekomendasi: ?rencana=kuliah&item=...) ===
     document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
         const planParam = urlParams.get('rencana');
+        const itemParam = urlParams.get('item');
+
         if (planParam && ['kuliah', 'bekerja', 'berwirausaha'].includes(planParam)) {
             pilihRencana(planParam);
+
+            if (itemParam) {
+                setTimeout(() => {
+                    if (planParam === 'bekerja') {
+                        pilihRekomendasiPekerjaan(itemParam);
+                    } else if (planParam === 'berwirausaha') {
+                        pilihRekomendasiUsaha(itemParam);
+                    }
+                }, 150);
+            }
         }
     });
 </script>

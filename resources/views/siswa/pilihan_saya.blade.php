@@ -299,34 +299,53 @@
                     @endif
                 </div>
 
-                {{-- 4. REKOMENDASI TERKAIT --}}
+                {{-- 4. REKOMENDASI TERKAIT (LINIER JURUSAN SISWA & HOLLAND) --}}
                 @if(!empty($recommendations))
+                    @php
+                        $listJurusan = !empty($recommendations['jurusan_linier']) ? $recommendations['jurusan_linier'] : ($recommendations['jurusan'] ?? collect());
+                        $listProfesi = !empty($recommendations['profesi_linier']) ? $recommendations['profesi_linier'] : ($recommendations['profesi'] ?? collect());
+                        $listUsaha   = !empty($recommendations['usaha_linier'])   ? $recommendations['usaha_linier']   : ($recommendations['usaha'] ?? collect());
+                        $majorCode   = $recommendations['student_major_code'] ?? null;
+                    @endphp
                     <div class="print-section mb-4 pb-4 border-bottom">
-                        <div style="font-size: 0.74rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
-                            IV. Rekomendasi Terarah (Holland Exploration)
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div style="font-size: 0.74rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">
+                                IV. Rekomendasi Terarah ({{ $majorCode ? 'Linier ' . $majorCode . ' • ' : '' }}Holland: {{ $careerResult->holland_code ?? '-' }})
+                            </div>
+                            @if($majorCode)
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.68rem; font-weight: 700;">
+                                    Kurasi Linier {{ $majorCode }}
+                                </span>
+                            @endif
                         </div>
                         <div class="row g-3">
                             <div class="col-12 col-md-4">
-                                <div style="font-size: 0.78rem; font-weight: 700; color: #2563eb; margin-bottom: 4px;">Jurusan / Prodi:</div>
-                                <ul class="mb-0 ps-3" style="font-size: 0.82rem; color: #334155;">
-                                    @foreach($recommendations['jurusan']->take(3) as $r)
-                                        <li>{{ $r->name }}</li>
+                                <div style="font-size: 0.78rem; font-weight: 700; color: #2563eb; margin-bottom: 4px;">
+                                    <i class="bi bi-mortarboard-fill me-1"></i> Jurusan / Prodi:
+                                </div>
+                                <ul class="mb-0 ps-3" style="font-size: 0.82rem; color: #334155; line-height: 1.55;">
+                                    @foreach(collect($listJurusan)->take(3) as $r)
+                                        <li>{{ is_array($r) ? $r['name'] : $r->name }}</li>
                                     @endforeach
                                 </ul>
                             </div>
                             <div class="col-12 col-md-4">
-                                <div style="font-size: 0.78rem; font-weight: 700; color: #d97706; margin-bottom: 4px;">Profesi:</div>
-                                <ul class="mb-0 ps-3" style="font-size: 0.82rem; color: #334155;">
-                                    @foreach($recommendations['profesi']->take(3) as $r)
-                                        <li>{{ $r->name }}</li>
+                                <div style="font-size: 0.78rem; font-weight: 700; color: #d97706; margin-bottom: 4px;">
+                                    <i class="bi bi-briefcase-fill me-1"></i> Profesi / Karier:
+                                </div>
+                                <ul class="mb-0 ps-3" style="font-size: 0.82rem; color: #334155; line-height: 1.55;">
+                                    @foreach(collect($listProfesi)->take(3) as $r)
+                                        <li>{{ is_array($r) ? $r['name'] : $r->name }}</li>
                                     @endforeach
                                 </ul>
                             </div>
                             <div class="col-12 col-md-4">
-                                <div style="font-size: 0.78rem; font-weight: 700; color: #7c3aed; margin-bottom: 4px;">Bidang Usaha:</div>
-                                <ul class="mb-0 ps-3" style="font-size: 0.82rem; color: #334155;">
-                                    @foreach($recommendations['usaha']->take(3) as $r)
-                                        <li>{{ $r->name }}</li>
+                                <div style="font-size: 0.78rem; font-weight: 700; color: #7c3aed; margin-bottom: 4px;">
+                                    <i class="bi bi-shop me-1"></i> Bidang Usaha:
+                                </div>
+                                <ul class="mb-0 ps-3" style="font-size: 0.82rem; color: #334155; line-height: 1.55;">
+                                    @foreach(collect($listUsaha)->take(3) as $r)
+                                        <li>{{ is_array($r) ? $r['name'] : $r->name }}</li>
                                     @endforeach
                                 </ul>
                             </div>

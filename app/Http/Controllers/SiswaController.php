@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Auth;
 class SiswaController extends Controller
 {
     public function __construct(
-        protected KipKuliahService $kipService
+        protected KipKuliahService $kipService,
+        protected \App\Services\RiasecService $riasecService
     ) {}
 
     /**
@@ -58,8 +59,9 @@ class SiswaController extends Controller
 
         $pengumuman = \App\Models\Setting::get('pesan_pengumuman');
         $careerResult = $user->careerResult;
+        $recommendations = $careerResult ? $this->riasecService->getRecommendationsForCode($careerResult->holland_code, $user) : [];
 
-        return view('siswa.rencana', compact('user', 'pengumuman', 'careerResult'));
+        return view('siswa.rencana', compact('user', 'pengumuman', 'careerResult', 'recommendations'));
     }
 
     /**
@@ -97,10 +99,10 @@ class SiswaController extends Controller
             'akreditasi' => ['required_if:rencana,kuliah'],
             // Bekerja
             'bidang_pekerjaan' => ['required_if:rencana,bekerja'],
-            'keterangan_pekerjaan' => ['nullable', 'string', 'max:500'],
+            'keterangan_pekerjaan' => ['required_if:rencana,bekerja', 'string', 'max:500'],
             // Berwirausaha
             'bidang_usaha' => ['required_if:rencana,berwirausaha'],
-            'keterangan_usaha' => ['nullable', 'string', 'max:500'],
+            'keterangan_usaha' => ['required_if:rencana,berwirausaha', 'string', 'max:500'],
         ], [
             'rencana.required' => 'Pilih rencana setelah lulus.',
             'perguruan_tinggi_id.required_if' => 'Pilih perguruan tinggi.',
@@ -110,7 +112,9 @@ class SiswaController extends Controller
             'jenjang.required_if' => 'Jenjang wajib diisi.',
             'akreditasi.required_if' => 'Akreditasi wajib diisi.',
             'bidang_pekerjaan.required_if' => 'Pilih bidang pekerjaan yang diminati.',
+            'keterangan_pekerjaan.required_if' => 'Keterangan pekerjaan yang diminati wajib diisi.',
             'bidang_usaha.required_if' => 'Pilih bidang usaha yang diminati.',
+            'keterangan_usaha.required_if' => 'Jenis usaha yang diminati wajib diisi.',
         ]);
 
         $data = [
@@ -259,7 +263,7 @@ class SiswaController extends Controller
         $careerResult = $user->careerResult;
 
         $riasecService = app(\App\Services\RiasecService::class);
-        $recommendations = $careerResult ? $riasecService->getRecommendationsForCode($careerResult->holland_code) : [];
+        $recommendations = $careerResult ? $riasecService->getRecommendationsForCode($careerResult->holland_code, $user) : [];
 
         return view('siswa.pilihan_saya', compact('user', 'pilihan', 'careerResult', 'recommendations'));
     }

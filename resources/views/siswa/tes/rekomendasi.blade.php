@@ -214,23 +214,23 @@
             <ul class="nav nav-pills nav-fill nav-pill-custom gap-2" id="curatedRecomTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="tab-btn-jurusan" data-bs-toggle="tab" data-bs-target="#panel-jurusan" type="button" role="tab">
-                        <i class="bi bi-mortarboard-fill me-1"></i> 🎓 Jurusan / Prodi (3 Rekomendasi Utama)
+                        <i class="bi bi-mortarboard-fill me-1"></i> 🎓 Jurusan Kuliah (Top 3 & Terkurasi)
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="tab-btn-profesi" data-bs-toggle="tab" data-bs-target="#panel-profesi" type="button" role="tab">
-                        <i class="bi bi-briefcase-fill me-1"></i> 💼 Profesi & Karier (3)
+                        <i class="bi bi-briefcase-fill me-1"></i> 💼 Profesi & Karier (Top 3 & Terkurasi)
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="tab-btn-usaha" data-bs-toggle="tab" data-bs-target="#panel-usaha" type="button" role="tab">
-                        <i class="bi bi-shop me-1"></i> 🚀 Bidang Usaha (3)
+                        <i class="bi bi-shop me-1"></i> 🚀 Bidang Usaha (Top 3 & Terkurasi)
                     </button>
                 </li>
             </ul>
         </div>
 
-        {{-- [BAGIAN BAWAH: LAYOUT CARD REKOMENDASI (2 BARIS STRUKTURAL)] --}}
+        {{-- [BAGIAN BAWAH: LAYOUT CARD REKOMENDASI (STRUKTUR TEPAT & KAYA PILIHAN)] --}}
         <div class="tab-content" id="curatedRecomContent">
 
             {{-- =========================================================================
@@ -238,35 +238,40 @@
                  ========================================================================= --}}
             <div class="tab-pane fade show active" id="panel-jurusan" role="tabpanel">
                 
-                {{-- BARIS 1: 🌟 REKOMENDASI UTAMA & LINIER (SANGAT DISARANKAN) --}}
+                {{-- BARIS 1: 🌟 TOP 3 REKOMENDASI UTAMA & LINIER (SANGAT DISARANKAN) --}}
                 <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                     <div>
                         <div style="font-size:0.75rem; font-weight:800; color:#2563eb; text-transform:uppercase; letter-spacing:0.04em;">
                             Jalur Pendidikan Tinggi
                         </div>
                         <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0;">
-                            🌟 Rekomendasi Utama & Linier (Sangat Disarankan)
+                            🌟 Top 3 Rekomendasi Utama (Pilihan Paling Tepat)
                         </h2>
                     </div>
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2" style="font-size:0.76rem;">
-                        Menjembatani {{ $recommendations['student_major_code'] }} dengan Potensi {{ $careerResult->holland_code }}
+                        Linier {{ $recommendations['student_major_code'] }} • Minat {{ $careerResult->holland_code }}
                     </span>
                 </div>
 
+                @php
+                    $jurusanTop3 = collect($recommendations['jurusan_linier'])->take(3);
+                    $jurusanAlternatif = collect($recommendations['jurusan_linier'])->slice(3);
+                @endphp
+
                 <div class="row g-3 mb-4">
-                    @foreach($recommendations['jurusan_linier'] as $item)
+                    @foreach($jurusanTop3 as $item)
                         <div class="col-12 col-md-4">
-                            <div class="card-recom-item linier-card p-4 h-100">
+                            <div class="card-recom-item linier-card p-4 h-100" style="border-left-width: 5px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);">
                                 <div>
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="badge bg-primary-subtle text-primary fw-bold font-monospace px-2 py-1" style="font-size: 0.74rem;">
+                                        <span class="badge bg-primary text-white fw-bold font-monospace px-2 py-1" style="font-size: 0.72rem;">
+                                            {{ $item['badge_label'] }}
+                                        </span>
+                                        <span class="badge bg-light text-primary border" style="font-size: 0.70rem;">
                                             Tipe: {{ $item['riasec_code'] }}
                                         </span>
-                                        <span style="font-size: 0.72rem; font-weight: 700; color: #64748b;">
-                                            {{ $item['category_label'] }}
-                                        </span>
                                     </div>
-                                    <h3 style="font-size: 1.02rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.35;">
+                                    <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.35;">
                                         {{ $item['name'] }}
                                     </h3>
                                     <p style="font-size: 0.82rem; color: #475569; line-height: 1.5; margin: 0;">
@@ -275,10 +280,10 @@
                                 </div>
                                 <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between">
                                     <span style="font-size: 0.73rem; color: #2563eb; font-weight: 700;">
-                                        <i class="bi bi-patch-check-fill me-1"></i> Selaras {{ $recommendations['student_major_code'] }}
+                                        <i class="bi bi-patch-check-fill me-1"></i> Rekomendasi Utama
                                     </span>
-                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan']]) }}" class="btn btn-sm btn-outline-primary fw-bold px-2 py-1" style="font-size: 0.76rem; border-radius: var(--radius-sm);">
-                                        Pilih Rencana Ini →
+                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan'], 'item' => $item['name']]) }}" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" style="font-size: 0.76rem; border-radius: var(--radius-sm);">
+                                        Pilih Opsi Ini →
                                     </a>
                                 </div>
                             </div>
@@ -286,7 +291,50 @@
                     @endforeach
                 </div>
 
-                {{-- BARIS 2: 🔄 EKSPLORASI LINTAS JURUSAN (PELUANG BARU) --}}
+                {{-- BARIS 2: ✨ ALTERNATIF PILIHAN LINIER LAINNYA --}}
+                @if($jurusanAlternatif->isNotEmpty())
+                    <div class="d-flex align-items-center justify-content-between mb-2 mt-4 flex-wrap gap-2">
+                        <div>
+                            <span style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.03em;">
+                                ✨ Opsi Alternatif Linier Kejuruan (Eksplorasi Cabang Lain)
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        @foreach($jurusanAlternatif as $item)
+                            <div class="col-12 col-md-4">
+                                <div class="card-recom-item p-3 h-100" style="border-left: 3.5px solid #94a3b8; background: #fafafa;">
+                                    <div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <span class="badge bg-secondary-subtle text-secondary fw-bold px-2 py-1" style="font-size: 0.70rem;">
+                                                {{ $item['badge_label'] }}
+                                            </span>
+                                            <span class="badge bg-light text-muted border" style="font-size: 0.68rem;">
+                                                {{ $item['riasec_code'] }}
+                                            </span>
+                                        </div>
+                                        <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 6px; line-height: 1.35;">
+                                            {{ $item['name'] }}
+                                        </h4>
+                                        <p style="font-size: 0.78rem; color: #64748b; line-height: 1.45; margin: 0;">
+                                            {{ $item['description'] }}
+                                        </p>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between">
+                                        <span style="font-size: 0.70rem; color: #64748b; font-weight: 600;">
+                                            Linier {{ $recommendations['student_major_code'] }}
+                                        </span>
+                                        <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan'], 'item' => $item['name']]) }}" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1" style="font-size: 0.73rem;">
+                                            Pilih Ini →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- BARIS 3: 🔄 EKSPLORASI LINTAS JURUSAN (PELUANG BARU) --}}
                 <div class="cross-divider">
                     <span class="cross-divider-badge">
                         <i class="bi bi-shuffle text-purple" style="color:#8b5cf6;"></i> Ingin Lintas Jurusan? Cek Opsi Ini
@@ -300,30 +348,30 @@
 
                 <div class="row g-3 mb-4">
                     @foreach($recommendations['jurusan_lintas'] as $item)
-                        <div class="col-12 col-md-4">
-                            <div class="card-recom-item cross-card p-4 h-100">
+                        <div class="col-12 col-md-3">
+                            <div class="card-recom-item cross-card p-3 h-100">
                                 <div>
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="badge fw-bold font-monospace px-2 py-1" style="font-size: 0.74rem; background:#ede9fe; color:#7c3aed;">
+                                        <span class="badge fw-bold font-monospace px-2 py-1" style="font-size: 0.70rem; background:#ede9fe; color:#7c3aed;">
                                             Tipe: {{ $item['riasec_code'] }}
                                         </span>
-                                        <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.70rem;">
+                                        <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.68rem;">
                                             {{ $item['source_major'] ?? 'Lintas Bidang' }}
                                         </span>
                                     </div>
-                                    <h3 style="font-size: 1.02rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.35;">
+                                    <h4 style="font-size: 0.94rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; line-height: 1.35;">
                                         {{ $item['name'] }}
-                                    </h3>
-                                    <p style="font-size: 0.82rem; color: #475569; line-height: 1.5; margin: 0;">
+                                    </h4>
+                                    <p style="font-size: 0.78rem; color: #475569; line-height: 1.45; margin: 0;">
                                         {{ $item['description'] }}
                                     </p>
                                 </div>
-                                <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between">
-                                    <span style="font-size: 0.73rem; color: #7c3aed; font-weight: 700;">
+                                <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between">
+                                    <span style="font-size: 0.70rem; color: #7c3aed; font-weight: 700;">
                                         <i class="bi bi-stars me-1"></i> Peluang Baru
                                     </span>
-                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan']]) }}" class="btn btn-sm btn-outline-purple fw-bold px-2 py-1" style="font-size: 0.76rem; border-radius: var(--radius-sm); color:#7c3aed; border-color:#c4b5fd;">
-                                        Pilih Rencana Ini →
+                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan'], 'item' => $item['name']]) }}" class="btn btn-sm btn-outline-purple fw-bold px-2 py-1" style="font-size: 0.72rem; border-radius: var(--radius-sm); color:#7c3aed; border-color:#c4b5fd;">
+                                        Pilih Ini →
                                     </a>
                                 </div>
                             </div>
@@ -338,14 +386,14 @@
                  ========================================================================= --}}
             <div class="tab-pane fade" id="panel-profesi" role="tabpanel">
                 
-                {{-- BARIS 1: 🌟 REKOMENDASI UTAMA & LINIER (KARIER) --}}
+                {{-- BARIS 1: 🌟 TOP 3 REKOMENDASI UTAMA (KARIER) --}}
                 <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                     <div>
-                        <div style="font-size:0.75rem; font-weight:800; color:#f59e0b; text-transform:uppercase; letter-spacing:0.04em;">
+                        <div style="font-size:0.75rem; font-weight:800; color:#d97706; text-transform:uppercase; letter-spacing:0.04em;">
                             Jalur Dunia Kerja & Industri
                         </div>
                         <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0;">
-                            🌟 Rekomendasi Utama & Linier (Karier Industri)
+                            🌟 Top 3 Rekomendasi Utama (Profesi & Karier Paling Tepat)
                         </h2>
                     </div>
                     <span class="badge bg-warning-subtle text-dark border border-warning-subtle px-3 py-2" style="font-size:0.76rem;">
@@ -353,20 +401,25 @@
                     </span>
                 </div>
 
+                @php
+                    $profesiTop3 = collect($recommendations['profesi_linier'])->take(3);
+                    $profesiAlternatif = collect($recommendations['profesi_linier'])->slice(3);
+                @endphp
+
                 <div class="row g-3 mb-4">
-                    @foreach($recommendations['profesi_linier'] as $item)
+                    @foreach($profesiTop3 as $item)
                         <div class="col-12 col-md-4">
-                            <div class="card-recom-item linier-card p-4 h-100" style="border-left-color: #f59e0b;">
+                            <div class="card-recom-item linier-card p-4 h-100" style="border-left-color: #f59e0b; border-left-width: 5px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.08);">
                                 <div>
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="badge bg-warning-subtle text-dark fw-bold font-monospace px-2 py-1" style="font-size: 0.74rem;">
+                                        <span class="badge bg-warning text-dark fw-bold font-monospace px-2 py-1" style="font-size: 0.72rem;">
+                                            {{ $item['badge_label'] }}
+                                        </span>
+                                        <span class="badge bg-light text-warning border text-dark" style="font-size: 0.70rem;">
                                             Tipe: {{ $item['riasec_code'] }}
                                         </span>
-                                        <span style="font-size: 0.72rem; font-weight: 700; color: #64748b;">
-                                            {{ $item['category_label'] }}
-                                        </span>
                                     </div>
-                                    <h3 style="font-size: 1.02rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.35;">
+                                    <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.35;">
                                         {{ $item['name'] }}
                                     </h3>
                                     <p style="font-size: 0.82rem; color: #475569; line-height: 1.5; margin: 0;">
@@ -375,10 +428,10 @@
                                 </div>
                                 <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between">
                                     <span style="font-size: 0.73rem; color: #d97706; font-weight: 700;">
-                                        <i class="bi bi-briefcase-fill me-1"></i> Linier {{ $recommendations['student_major_code'] }}
+                                        <i class="bi bi-briefcase-fill me-1"></i> Rekomendasi Utama
                                     </span>
-                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan']]) }}" class="btn btn-sm btn-outline-warning text-dark fw-bold px-2 py-1" style="font-size: 0.76rem; border-radius: var(--radius-sm);">
-                                        Pilih Rencana Ini →
+                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan'], 'item' => $item['name']]) }}" class="btn btn-sm btn-outline-warning text-dark fw-bold px-3 py-1" style="font-size: 0.76rem; border-radius: var(--radius-sm);">
+                                        Pilih Opsi Ini →
                                     </a>
                                 </div>
                             </div>
@@ -386,7 +439,50 @@
                     @endforeach
                 </div>
 
-                {{-- BARIS 2: 🔄 EKSPLORASI KARIER LINTAS BIDANG --}}
+                {{-- BARIS 2: ✨ ALTERNATIF PILIHAN PROFESI LAINNYA --}}
+                @if($profesiAlternatif->isNotEmpty())
+                    <div class="d-flex align-items-center justify-content-between mb-2 mt-4 flex-wrap gap-2">
+                        <div>
+                            <span style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.03em;">
+                                ✨ Opsi Alternatif Profesi Linier (Karier Terkait {{ $recommendations['student_major_code'] }})
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        @foreach($profesiAlternatif as $item)
+                            <div class="col-12 col-md-4">
+                                <div class="card-recom-item p-3 h-100" style="border-left: 3.5px solid #d97706; background: #fffdf5;">
+                                    <div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <span class="badge bg-warning-subtle text-dark fw-bold px-2 py-1" style="font-size: 0.70rem;">
+                                                {{ $item['badge_label'] }}
+                                            </span>
+                                            <span class="badge bg-light text-muted border" style="font-size: 0.68rem;">
+                                                {{ $item['riasec_code'] }}
+                                            </span>
+                                        </div>
+                                        <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 6px; line-height: 1.35;">
+                                            {{ $item['name'] }}
+                                        </h4>
+                                        <p style="font-size: 0.78rem; color: #64748b; line-height: 1.45; margin: 0;">
+                                            {{ $item['description'] }}
+                                        </p>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between">
+                                        <span style="font-size: 0.70rem; color: #b45309; font-weight: 600;">
+                                            Linier {{ $recommendations['student_major_code'] }}
+                                        </span>
+                                        <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan'], 'item' => $item['name']]) }}" class="btn btn-sm btn-outline-warning text-dark fw-bold px-2 py-1" style="font-size: 0.73rem;">
+                                            Pilih Ini →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- BARIS 3: 🔄 EKSPLORASI KARIER LINTAS BIDANG --}}
                 <div class="cross-divider">
                     <span class="cross-divider-badge">
                         <i class="bi bi-shuffle text-purple" style="color:#8b5cf6;"></i> Ingin Lintas Bidang Karier? Cek Opsi Ini
@@ -400,30 +496,30 @@
 
                 <div class="row g-3 mb-4">
                     @foreach($recommendations['profesi_lintas'] as $item)
-                        <div class="col-12 col-md-4">
-                            <div class="card-recom-item cross-card p-4 h-100">
+                        <div class="col-12 col-md-3">
+                            <div class="card-recom-item cross-card p-3 h-100">
                                 <div>
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="badge fw-bold font-monospace px-2 py-1" style="font-size: 0.74rem; background:#ede9fe; color:#7c3aed;">
+                                        <span class="badge fw-bold font-monospace px-2 py-1" style="font-size: 0.70rem; background:#ede9fe; color:#7c3aed;">
                                             Tipe: {{ $item['riasec_code'] }}
                                         </span>
-                                        <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.70rem;">
+                                        <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.68rem;">
                                             {{ $item['source_major'] ?? 'Lintas Bidang' }}
                                         </span>
                                     </div>
-                                    <h3 style="font-size: 1.02rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.35;">
+                                    <h4 style="font-size: 0.94rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; line-height: 1.35;">
                                         {{ $item['name'] }}
-                                    </h3>
-                                    <p style="font-size: 0.82rem; color: #475569; line-height: 1.5; margin: 0;">
+                                    </h4>
+                                    <p style="font-size: 0.78rem; color: #475569; line-height: 1.45; margin: 0;">
                                         {{ $item['description'] }}
                                     </p>
                                 </div>
-                                <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between">
-                                    <span style="font-size: 0.73rem; color: #7c3aed; font-weight: 700;">
+                                <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between">
+                                    <span style="font-size: 0.70rem; color: #7c3aed; font-weight: 700;">
                                         <i class="bi bi-stars me-1"></i> Peluang Baru
                                     </span>
-                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan']]) }}" class="btn btn-sm btn-outline-purple fw-bold px-2 py-1" style="font-size: 0.76rem; border-radius: var(--radius-sm); color:#7c3aed; border-color:#c4b5fd;">
-                                        Pilih Rencana Ini →
+                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan'], 'item' => $item['name']]) }}" class="btn btn-sm btn-outline-purple fw-bold px-2 py-1" style="font-size: 0.72rem; border-radius: var(--radius-sm); color:#7c3aed; border-color:#c4b5fd;">
+                                        Pilih Ini →
                                     </a>
                                 </div>
                             </div>
@@ -438,14 +534,14 @@
                  ========================================================================= --}}
             <div class="tab-pane fade" id="panel-usaha" role="tabpanel">
                 
-                {{-- BARIS 1: 🌟 REKOMENDASI UTAMA & LINIER (WIRAUSAHA) --}}
+                {{-- BARIS 1: 🌟 TOP 3 REKOMENDASI UTAMA (WIRAUSAHA) --}}
                 <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                     <div>
                         <div style="font-size:0.75rem; font-weight:800; color:#8b5cf6; text-transform:uppercase; letter-spacing:0.04em;">
                             Jalur Wirausaha Mandiri
                         </div>
                         <h2 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0;">
-                            🌟 Rekomendasi Utama & Linier (Ide Bisnis Mandiri)
+                            🌟 Top 3 Rekomendasi Utama (Ide Bisnis Mandiri Paling Tepat)
                         </h2>
                     </div>
                     <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-3 py-2" style="font-size:0.76rem; background:#f5f3ff; color:#6d28d9;">
@@ -453,20 +549,25 @@
                     </span>
                 </div>
 
+                @php
+                    $usahaTop3 = collect($recommendations['usaha_linier'])->take(3);
+                    $usahaAlternatif = collect($recommendations['usaha_linier'])->slice(3);
+                @endphp
+
                 <div class="row g-3 mb-4">
-                    @foreach($recommendations['usaha_linier'] as $item)
+                    @foreach($usahaTop3 as $item)
                         <div class="col-12 col-md-4">
-                            <div class="card-recom-item linier-card p-4 h-100" style="border-left-color: #8b5cf6;">
+                            <div class="card-recom-item linier-card p-4 h-100" style="border-left-color: #8b5cf6; border-left-width: 5px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.08);">
                                 <div>
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="badge fw-bold font-monospace px-2 py-1" style="font-size: 0.74rem; background:#ede9fe; color:#6d28d9;">
+                                        <span class="badge fw-bold font-monospace px-2 py-1 text-white" style="font-size: 0.72rem; background:#7c3aed;">
+                                            {{ $item['badge_label'] }}
+                                        </span>
+                                        <span class="badge bg-light border text-purple" style="font-size: 0.70rem; color:#6d28d9;">
                                             Tipe: {{ $item['riasec_code'] }}
                                         </span>
-                                        <span style="font-size: 0.72rem; font-weight: 700; color: #64748b;">
-                                            {{ $item['category_label'] }}
-                                        </span>
                                     </div>
-                                    <h3 style="font-size: 1.02rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.35;">
+                                    <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.35;">
                                         {{ $item['name'] }}
                                     </h3>
                                     <p style="font-size: 0.82rem; color: #475569; line-height: 1.5; margin: 0;">
@@ -475,10 +576,10 @@
                                 </div>
                                 <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between">
                                     <span style="font-size: 0.73rem; color: #7c3aed; font-weight: 700;">
-                                        <i class="bi bi-shop me-1"></i> Linier {{ $recommendations['student_major_code'] }}
+                                        <i class="bi bi-shop me-1"></i> Rekomendasi Utama
                                     </span>
-                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan']]) }}" class="btn btn-sm btn-outline-purple fw-bold px-2 py-1" style="font-size: 0.76rem; border-radius: var(--radius-sm); color:#7c3aed; border-color:#c4b5fd;">
-                                        Pilih Rencana Ini →
+                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan'], 'item' => $item['name']]) }}" class="btn btn-sm btn-outline-purple fw-bold px-3 py-1" style="font-size: 0.76rem; border-radius: var(--radius-sm); color:#7c3aed; border-color:#c4b5fd;">
+                                        Pilih Opsi Ini →
                                     </a>
                                 </div>
                             </div>
@@ -486,7 +587,50 @@
                     @endforeach
                 </div>
 
-                {{-- BARIS 2: 🔄 EKSPLORASI WIRAUSAHA LINTAS BIDANG --}}
+                {{-- BARIS 2: ✨ ALTERNATIF PILIHAN WIRAUSAHA LAINNYA --}}
+                @if($usahaAlternatif->isNotEmpty())
+                    <div class="d-flex align-items-center justify-content-between mb-2 mt-4 flex-wrap gap-2">
+                        <div>
+                            <span style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.03em;">
+                                ✨ Opsi Alternatif Wirausaha Linier (Bisnis Terkait {{ $recommendations['student_major_code'] }})
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        @foreach($usahaAlternatif as $item)
+                            <div class="col-12 col-md-4">
+                                <div class="card-recom-item p-3 h-100" style="border-left: 3.5px solid #a855f7; background: #faf5ff;">
+                                    <div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <span class="badge bg-purple-subtle text-purple fw-bold px-2 py-1" style="font-size: 0.70rem; color:#7c3aed;">
+                                                {{ $item['badge_label'] }}
+                                            </span>
+                                            <span class="badge bg-light text-muted border" style="font-size: 0.68rem;">
+                                                {{ $item['riasec_code'] }}
+                                            </span>
+                                        </div>
+                                        <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 6px; line-height: 1.35;">
+                                            {{ $item['name'] }}
+                                        </h4>
+                                        <p style="font-size: 0.78rem; color: #64748b; line-height: 1.45; margin: 0;">
+                                            {{ $item['description'] }}
+                                        </p>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between">
+                                        <span style="font-size: 0.70rem; color: #7c3aed; font-weight: 600;">
+                                            Linier {{ $recommendations['student_major_code'] }}
+                                        </span>
+                                        <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan'], 'item' => $item['name']]) }}" class="btn btn-sm btn-outline-purple fw-bold px-2 py-1" style="font-size: 0.73rem; color:#7c3aed; border-color:#c4b5fd;">
+                                            Pilih Ini →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- BARIS 3: 🔄 EKSPLORASI WIRAUSAHA LINTAS BIDANG --}}
                 <div class="cross-divider">
                     <span class="cross-divider-badge">
                         <i class="bi bi-shuffle text-purple" style="color:#8b5cf6;"></i> Ingin Merintis Usaha Lintas Bidang? Cek Opsi Ini
@@ -500,30 +644,30 @@
 
                 <div class="row g-3 mb-4">
                     @foreach($recommendations['usaha_lintas'] as $item)
-                        <div class="col-12 col-md-4">
-                            <div class="card-recom-item cross-card p-4 h-100">
+                        <div class="col-12 col-md-3">
+                            <div class="card-recom-item cross-card p-3 h-100">
                                 <div>
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="badge fw-bold font-monospace px-2 py-1" style="font-size: 0.74rem; background:#ede9fe; color:#7c3aed;">
+                                        <span class="badge fw-bold font-monospace px-2 py-1" style="font-size: 0.70rem; background:#ede9fe; color:#7c3aed;">
                                             Tipe: {{ $item['riasec_code'] }}
                                         </span>
-                                        <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.70rem;">
+                                        <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.68rem;">
                                             {{ $item['source_major'] ?? 'Lintas Bidang' }}
                                         </span>
                                     </div>
-                                    <h3 style="font-size: 1.02rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.35;">
+                                    <h4 style="font-size: 0.94rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; line-height: 1.35;">
                                         {{ $item['name'] }}
-                                    </h3>
-                                    <p style="font-size: 0.82rem; color: #475569; line-height: 1.5; margin: 0;">
+                                    </h4>
+                                    <p style="font-size: 0.78rem; color: #475569; line-height: 1.45; margin: 0;">
                                         {{ $item['description'] }}
                                     </p>
                                 </div>
-                                <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between">
-                                    <span style="font-size: 0.73rem; color: #7c3aed; font-weight: 700;">
+                                <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between">
+                                    <span style="font-size: 0.70rem; color: #7c3aed; font-weight: 700;">
                                         <i class="bi bi-stars me-1"></i> Peluang Baru
                                     </span>
-                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan']]) }}" class="btn btn-sm btn-outline-purple fw-bold px-2 py-1" style="font-size: 0.76rem; border-radius: var(--radius-sm); color:#7c3aed; border-color:#c4b5fd;">
-                                        Pilih Rencana Ini →
+                                    <a href="{{ route('siswa.rencana', ['rencana' => $item['action_plan'], 'item' => $item['name']]) }}" class="btn btn-sm btn-outline-purple fw-bold px-2 py-1" style="font-size: 0.72rem; border-radius: var(--radius-sm); color:#7c3aed; border-color:#c4b5fd;">
+                                        Pilih Ini →
                                     </a>
                                 </div>
                             </div>

@@ -75,6 +75,7 @@ Route::middleware(['auth', 'role:admin,guru_bk'])->prefix('admin')->group(functi
 
     // Hasil Tes Minat RIASEC
     Route::get('/hasil-tes', [AdminController::class, 'hasilTes'])->name('admin.hasil-tes');
+    Route::get('/hasil-tes/{id}', [AdminController::class, 'detailTes'])->name('admin.hasil-tes.detail');
     Route::delete('/hasil-tes/{id}/reset', [AdminController::class, 'resetTes'])->name('admin.hasil-tes.reset');
 
     // Rencana Siswa

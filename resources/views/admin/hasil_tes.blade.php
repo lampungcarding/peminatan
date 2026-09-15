@@ -118,14 +118,20 @@
                         <td style="color: #64748b; font-size: 0.8rem;">
                             {{ $item->completed_at ? $item->completed_at->format('d M Y H:i') : '-' }}
                         </td>
-                        <td style="text-align: right; padding-right: 16px;">
+                        <td style="text-align: right; padding-right: 16px; white-space: nowrap;">
+                            <a href="{{ route('admin.hasil-tes.detail', $item->id) }}"
+                               class="btn btn-sm btn-primary text-white me-1 d-inline-flex align-items-center gap-1"
+                               title="Lihat Detail & 72 Jawaban Soal Siswa"
+                               style="font-size: 0.75rem; padding: 4px 10px; border-radius: 6px;">
+                                <i class="bi bi-eye-fill"></i> Detail & Jawaban
+                            </a>
                             <form action="{{ route('admin.hasil-tes.reset', $item->user_id) }}"
                                   method="POST"
                                   onsubmit="return confirm('Apakah Anda yakin ingin mereset hasil tes minat siswa {{ $item->user->name ?? '' }}? Siswa dapat mengikuti tes ulang.');"
                                   class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Reset Tes" style="font-size: 0.75rem; padding: 4px 8px;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Reset Tes" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px;">
                                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                                 </button>
                             </form>
