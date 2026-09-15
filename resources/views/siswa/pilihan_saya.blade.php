@@ -125,16 +125,25 @@
 
         {{-- OFFICIAL DIGITAL PROOF CARD (PRD SECTION 30) --}}
         <div class="card-pro mb-4 p-0 shadow-sm" id="printableCard" style="border: 2px solid #e2e8f0; border-radius: var(--radius-xl); overflow:hidden; background:#ffffff;">
-            {{-- Document Header --}}
-            <div class="p-4 text-center border-bottom doc-header" style="background: #1F355F; color:#ffffff;">
+            {{-- Official Kop Surat Resmi (Print Mode) --}}
+            <div class="d-none d-print-block p-3">
+                @include('partials.kop_surat', [
+                    'judulDokumen' => 'PROFIL PERENCANAAN KARIER & STUDI SISWA',
+                    'subJudulDokumen' => 'Tahun Ajaran ' . \App\Models\Setting::get('tahun_ajaran', '2026/2027') . ' • Dokumen Resmi Bimbingan Konseling',
+                    'align' => 'center'
+                ])
+            </div>
+
+            {{-- Document Header (Screen Mode) --}}
+            <div class="p-4 text-center border-bottom doc-header d-print-none" style="background: #1F355F; color:#ffffff;">
                 <div class="doc-kemen" style="font-size: 0.75rem; font-weight: 600; color: #E4E7EC; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 4px;">
-                    Pemerintah Provinsi Lampung
+                    {{ \App\Models\Setting::get('kop_instansi_atas', 'PEMERINTAH PROVINSI LAMPUNG') }} • {{ \App\Models\Setting::get('kop_instansi_tengah', 'DINAS PENDIDIKAN DAN KEBUDAYAAN') }}
                 </div>
                 <h1 style="font-size: 1.45rem; font-weight: 700; margin: 0; letter-spacing: -0.01em;">
                     PROFIL PERENCANAAN KARIER & STUDI SISWA
                 </h1>
                 <div class="doc-school" style="font-size: 0.86rem; color: #E4E7EC; margin-top: 4px;">
-                    {{ \App\Models\Setting::get('nama_sekolah', 'SMK Negeri 1 Bandar Lampung') }} • Tahun Ajaran {{ \App\Models\Setting::get('tahun_ajaran', '2024/2025') }}
+                    {{ \App\Models\Setting::get('kop_nama_sekolah', \App\Models\Setting::get('nama_sekolah', 'SMK Negeri 4 Bandar Lampung')) }} • Tahun Ajaran {{ \App\Models\Setting::get('tahun_ajaran', '2026/2027') }}
                 </div>
             </div>
 

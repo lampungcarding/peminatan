@@ -91,30 +91,29 @@ class SiswaController extends Controller
         $request->validate([
             'rencana' => ['required', 'in:kuliah,bekerja,berwirausaha'],
             // Kuliah
-            'perguruan_tinggi_id' => ['required_if:rencana,kuliah'],
-            'nama_perguruan_tinggi' => ['required_if:rencana,kuliah'],
-            'program_studi_id' => ['required_if:rencana,kuliah'],
-            'nama_program_studi' => ['required_if:rencana,kuliah'],
-            'jenjang' => ['required_if:rencana,kuliah'],
-            'akreditasi' => ['required_if:rencana,kuliah'],
+            'perguruan_tinggi_id' => ['required_if:rencana,kuliah', 'nullable', 'string', 'max:255'],
+            'nama_perguruan_tinggi' => ['required_if:rencana,kuliah', 'nullable', 'string', 'max:255'],
+            'program_studi_id' => ['required_if:rencana,kuliah', 'nullable', 'string', 'max:255'],
+            'nama_program_studi' => ['required_if:rencana,kuliah', 'nullable', 'string', 'max:255'],
+            'jenjang' => ['required_if:rencana,kuliah', 'nullable', 'string', 'max:50'],
+            'akreditasi' => ['nullable', 'string', 'max:50'],
             // Bekerja
-            'bidang_pekerjaan' => ['required_if:rencana,bekerja'],
-            'keterangan_pekerjaan' => ['required_if:rencana,bekerja', 'string', 'max:500'],
+            'bidang_pekerjaan' => ['required_if:rencana,bekerja', 'nullable', 'string', 'max:100'],
+            'keterangan_pekerjaan' => ['required_if:rencana,bekerja', 'nullable', 'string', 'max:500'],
             // Berwirausaha
-            'bidang_usaha' => ['required_if:rencana,berwirausaha'],
-            'keterangan_usaha' => ['required_if:rencana,berwirausaha', 'string', 'max:500'],
+            'bidang_usaha' => ['required_if:rencana,berwirausaha', 'nullable', 'string', 'max:100'],
+            'keterangan_usaha' => ['required_if:rencana,berwirausaha', 'nullable', 'string', 'max:500'],
         ], [
-            'rencana.required' => 'Pilih rencana setelah lulus.',
-            'perguruan_tinggi_id.required_if' => 'Pilih perguruan tinggi.',
-            'nama_perguruan_tinggi.required_if' => 'Pilih perguruan tinggi.',
-            'program_studi_id.required_if' => 'Pilih program studi.',
-            'nama_program_studi.required_if' => 'Pilih program studi.',
-            'jenjang.required_if' => 'Jenjang wajib diisi.',
-            'akreditasi.required_if' => 'Akreditasi wajib diisi.',
-            'bidang_pekerjaan.required_if' => 'Pilih bidang pekerjaan yang diminati.',
-            'keterangan_pekerjaan.required_if' => 'Keterangan pekerjaan yang diminati wajib diisi.',
-            'bidang_usaha.required_if' => 'Pilih bidang usaha yang diminati.',
-            'keterangan_usaha.required_if' => 'Jenis usaha yang diminati wajib diisi.',
+            'rencana.required' => 'Pilih salah satu rencana setelah lulus.',
+            'perguruan_tinggi_id.required_if' => 'Silakan pilih perguruan tinggi dari daftar pencarian.',
+            'nama_perguruan_tinggi.required_if' => 'Nama perguruan tinggi wajib dipilih.',
+            'program_studi_id.required_if' => 'Silakan pilih program studi yang diinginkan.',
+            'nama_program_studi.required_if' => 'Program studi wajib dipilih.',
+            'jenjang.required_if' => 'Jenjang program studi wajib diisi.',
+            'bidang_pekerjaan.required_if' => 'Pilih bidang pekerjaan yang kamu minati.',
+            'keterangan_pekerjaan.required_if' => 'Keterangan atau profesi yang kamu minati wajib diisi.',
+            'bidang_usaha.required_if' => 'Pilih bidang usaha yang kamu minati.',
+            'keterangan_usaha.required_if' => 'Jenis atau ide usaha yang kamu minati wajib diisi.',
         ]);
 
         $data = [
@@ -126,8 +125,8 @@ class SiswaController extends Controller
             $data['nama_perguruan_tinggi'] = $request->nama_perguruan_tinggi;
             $data['program_studi_id'] = $request->program_studi_id;
             $data['nama_program_studi'] = $request->nama_program_studi;
-            $data['jenjang'] = $request->jenjang;
-            $data['akreditasi'] = $request->akreditasi;
+            $data['jenjang'] = $request->jenjang ?: 'S1';
+            $data['akreditasi'] = $request->akreditasi ?: '-';
         } elseif ($request->rencana === 'bekerja') {
             $data['bidang_pekerjaan'] = $request->bidang_pekerjaan;
             $data['keterangan_pekerjaan'] = $request->keterangan_pekerjaan;
@@ -136,8 +135,9 @@ class SiswaController extends Controller
             $data['keterangan_usaha'] = $request->keterangan_usaha;
         }
 
-        // Simpan ke session untuk konfirmasi
+        // Simpan ke session untuk tahap konfirmasi
         $request->session()->put('rencana_data', $data);
+        $request->session()->save();
 
         return redirect()->route('siswa.konfirmasi');
     }

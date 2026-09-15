@@ -38,6 +38,23 @@
     </div>
 @endif
 
+{{-- Validation Error Banner --}}
+@if($errors->any())
+    <div class="alert alert-danger alert-custom mb-4 border-0 shadow-sm" role="alert" style="background:#fef2f2; border-left:4px solid #ef4444 !important; border-radius:var(--radius-md);">
+        <div class="d-flex align-items-start gap-2">
+            <i class="bi bi-exclamation-triangle-fill text-danger mt-1 fs-5"></i>
+            <div>
+                <strong class="d-block text-danger" style="font-size:0.86rem;">Perhatian: Mohon lengkapi isian rencana berikut:</strong>
+                <ul class="mb-0 ps-3 mt-1" style="font-size:0.82rem; color:#991b1b;">
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+@endif
+
 <form id="formRencana" method="POST" action="{{ route('siswa.rencana.simpan') }}">
     @csrf
 
@@ -239,17 +256,21 @@
             <label for="bidangPekerjaan" class="form-label fw-bold" style="font-size:0.86rem; color:#451a03;">
                 Bidang Pekerjaan <span class="text-danger">*</span>
             </label>
+            @php
+                $oldBidangKerja = old('bidang_pekerjaan', session('rencana_data.bidang_pekerjaan', ''));
+                $oldKetKerja = old('keterangan_pekerjaan', session('rencana_data.keterangan_pekerjaan', ''));
+            @endphp
             <select name="bidang_pekerjaan" id="bidangPekerjaan" class="form-select form-control-pro" onchange="updateSubmitState()">
                 <option value="">-- Pilih Bidang Pekerjaan --</option>
-                <option value="Teknologi Informasi">Teknologi Informasi & Komunikasi</option>
-                <option value="Administrasi">Administrasi, Tata Usaha & Kearsipan</option>
-                <option value="Teknik & Manufaktur">Teknik, Otomotif, Mekanikal & Kelistrikan</option>
-                <option value="Pendidikan">Pendidikan & Pengajaran</option>
-                <option value="Kesehatan">Kesehatan, Medis & Farmasi</option>
-                <option value="Marketing">Pemasaran, Sales & Public Relations</option>
-                <option value="Keuangan">Keuangan, Akuntansi & Perbankan</option>
-                <option value="Industri & Konstruksi">Industri Manufaktur & Konstruksi Fisik</option>
-                <option value="Lainnya">Bidang Lainnya</option>
+                <option value="Teknologi Informasi" {{ $oldBidangKerja === 'Teknologi Informasi' ? 'selected' : '' }}>Teknologi Informasi & Komunikasi</option>
+                <option value="Administrasi" {{ $oldBidangKerja === 'Administrasi' ? 'selected' : '' }}>Administrasi, Tata Usaha & Kearsipan</option>
+                <option value="Teknik & Manufaktur" {{ $oldBidangKerja === 'Teknik & Manufaktur' ? 'selected' : '' }}>Teknik, Otomotif, Mekanikal & Kelistrikan</option>
+                <option value="Pendidikan" {{ $oldBidangKerja === 'Pendidikan' ? 'selected' : '' }}>Pendidikan & Pengajaran</option>
+                <option value="Kesehatan" {{ $oldBidangKerja === 'Kesehatan' ? 'selected' : '' }}>Kesehatan, Medis & Farmasi</option>
+                <option value="Marketing" {{ $oldBidangKerja === 'Marketing' ? 'selected' : '' }}>Pemasaran, Sales & Public Relations</option>
+                <option value="Keuangan" {{ $oldBidangKerja === 'Keuangan' ? 'selected' : '' }}>Keuangan, Akuntansi & Perbankan</option>
+                <option value="Industri & Konstruksi" {{ $oldBidangKerja === 'Industri & Konstruksi' ? 'selected' : '' }}>Industri Manufaktur & Konstruksi Fisik</option>
+                <option value="Lainnya" {{ $oldBidangKerja === 'Lainnya' ? 'selected' : '' }}>Bidang Lainnya</option>
             </select>
         </div>
 
@@ -261,6 +282,7 @@
                    name="keterangan_pekerjaan"
                    id="keteranganPekerjaan"
                    class="form-control form-control-pro"
+                   value="{{ $oldKetKerja }}"
                    placeholder="Contoh: Ingin menjadi teknisi jaringan atau staff administrasi logistik"
                    oninput="updateSubmitState()">
             <div class="form-text mb-2" style="font-size:0.75rem; color:#92400e;">
@@ -316,17 +338,21 @@
             <label for="bidangUsaha" class="form-label fw-bold" style="font-size:0.86rem; color:#2e1065;">
                 Bidang Usaha <span class="text-danger">*</span>
             </label>
+            @php
+                $oldBidangUsaha = old('bidang_usaha', session('rencana_data.bidang_usaha', ''));
+                $oldKetUsaha = old('keterangan_usaha', session('rencana_data.keterangan_usaha', ''));
+            @endphp
             <select name="bidang_usaha" id="bidangUsaha" class="form-select form-control-pro" onchange="updateSubmitState()">
                 <option value="">-- Pilih Bidang Usaha --</option>
-                <option value="Kuliner">Kuliner (Makanan, Minuman, Kafe & Katering)</option>
-                <option value="Fashion">Fashion, Pakaian & Busana Kreatif</option>
-                <option value="Teknologi">Teknologi, Jasa Software, Web & Gadget</option>
-                <option value="Jasa">Jasa & Layanan (Servis, Laundry, Ekspedisi, dll.)</option>
-                <option value="Perdagangan">Perdagangan Retail & Toko Online (E-Commerce)</option>
-                <option value="Kreatif">Industri Kreatif, Studio Desain, Foto & Video</option>
-                <option value="Pertanian">Pertanian Modern, Hidroponik & Perkebunan</option>
-                <option value="Peternakan">Peternakan & Perikanan</option>
-                <option value="Lainnya">Bidang Usaha Lainnya</option>
+                <option value="Kuliner" {{ $oldBidangUsaha === 'Kuliner' ? 'selected' : '' }}>Kuliner (Makanan, Minuman, Kafe & Katering)</option>
+                <option value="Fashion" {{ $oldBidangUsaha === 'Fashion' ? 'selected' : '' }}>Fashion, Pakaian & Busana Kreatif</option>
+                <option value="Teknologi" {{ $oldBidangUsaha === 'Teknologi' ? 'selected' : '' }}>Teknologi, Jasa Software, Web & Gadget</option>
+                <option value="Jasa" {{ $oldBidangUsaha === 'Jasa' ? 'selected' : '' }}>Jasa & Layanan (Servis, Laundry, Ekspedisi, dll.)</option>
+                <option value="Perdagangan" {{ $oldBidangUsaha === 'Perdagangan' ? 'selected' : '' }}>Perdagangan Retail & Toko Online (E-Commerce)</option>
+                <option value="Kreatif" {{ $oldBidangUsaha === 'Kreatif' ? 'selected' : '' }}>Industri Kreatif, Studio Desain, Foto & Video</option>
+                <option value="Pertanian" {{ $oldBidangUsaha === 'Pertanian' ? 'selected' : '' }}>Pertanian Modern, Hidroponik & Perkebunan</option>
+                <option value="Peternakan" {{ $oldBidangUsaha === 'Peternakan' ? 'selected' : '' }}>Peternakan & Perikanan</option>
+                <option value="Lainnya" {{ $oldBidangUsaha === 'Lainnya' ? 'selected' : '' }}>Bidang Usaha Lainnya</option>
             </select>
         </div>
 
@@ -338,6 +364,7 @@
                    name="keterangan_usaha"
                    id="keteranganUsaha"
                    class="form-control form-control-pro"
+                   value="{{ $oldKetUsaha }}"
                    placeholder="Contoh: Membuka kedai kopi kekinian dan toko apparel custom"
                    oninput="updateSubmitState()">
             <div class="form-text mb-2" style="font-size:0.75rem; color:#6d28d9;">
@@ -889,20 +916,22 @@
         btnMobile.disabled = !isValid;
     }
 
-    // === Auto Select via URL Query Param (misal dari halaman rekomendasi: ?rencana=kuliah&item=...) ===
+    // === Auto Select via URL Query Param or Old Session Value ===
     document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
         const planParam = urlParams.get('rencana');
         const itemParam = urlParams.get('item');
+        const savedPlan = "{{ old('rencana', session('rencana_data.rencana', '')) }}";
+        const initialPlan = planParam || savedPlan;
 
-        if (planParam && ['kuliah', 'bekerja', 'berwirausaha'].includes(planParam)) {
-            pilihRencana(planParam);
+        if (initialPlan && ['kuliah', 'bekerja', 'berwirausaha'].includes(initialPlan)) {
+            pilihRencana(initialPlan);
 
             if (itemParam) {
                 setTimeout(() => {
-                    if (planParam === 'bekerja') {
+                    if (initialPlan === 'bekerja') {
                         pilihRekomendasiPekerjaan(itemParam);
-                    } else if (planParam === 'berwirausaha') {
+                    } else if (initialPlan === 'berwirausaha') {
                         pilihRekomendasiUsaha(itemParam);
                     }
                 }, 150);

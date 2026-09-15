@@ -29,6 +29,15 @@
     </div>
 </div>
 
+{{-- Official KOP Surat Sekolah (Print Only) --}}
+<div class="d-none d-print-block mb-3">
+    @include('partials.kop_surat', [
+        'judulDokumen' => 'LEMBAR JAWABAN & HASIL ASESMEN MINAT KARIER (RIASEC)',
+        'subJudulDokumen' => 'Tahun Ajaran ' . \App\Models\Setting::get('tahun_ajaran', '2026/2027') . ' • Arsip Bimbingan Konseling Sekolah',
+        'align' => 'center'
+    ])
+</div>
+
 {{-- Student Profile & Summary Card --}}
 <div class="panel-card mb-4" style="background: linear-gradient(135deg, #1E3A8A 0%, #1F355F 100%); color: #ffffff; border-radius: 14px; padding: 24px;">
     <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">

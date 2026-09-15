@@ -1030,6 +1030,12 @@ class AdminController extends Controller
             'batas_pengisian' => 'required|date',
             'status_pendataan' => 'required|in:buka,tutup',
             'pesan_pengumuman' => 'nullable|string',
+            'kop_instansi_atas' => 'nullable|string|max:255',
+            'kop_instansi_tengah' => 'nullable|string|max:255',
+            'kop_nama_sekolah' => 'nullable|string|max:255',
+            'kop_alamat' => 'nullable|string|max:500',
+            'kop_kontak' => 'nullable|string|max:500',
+            'kop_kode_pos' => 'nullable|string|max:20',
         ]);
 
         \App\Models\Setting::set('nama_sekolah', $request->nama_sekolah);
@@ -1039,7 +1045,15 @@ class AdminController extends Controller
         \App\Models\Setting::set('status_pendataan', $request->status_pendataan);
         \App\Models\Setting::set('pesan_pengumuman', $request->pesan_pengumuman ?? '');
 
-        return redirect()->route('admin.pengaturan')->with('success', 'Pengaturan umum aplikasi berhasil disimpan.');
+        // Simpan Konfigurasi KOP Surat Resmi
+        \App\Models\Setting::set('kop_instansi_atas', $request->kop_instansi_atas ?? 'PEMERINTAH PROVINSI LAMPUNG');
+        \App\Models\Setting::set('kop_instansi_tengah', $request->kop_instansi_tengah ?? 'DINAS PENDIDIKAN DAN KEBUDAYAAN');
+        \App\Models\Setting::set('kop_nama_sekolah', $request->kop_nama_sekolah ?: $request->nama_sekolah);
+        \App\Models\Setting::set('kop_alamat', $request->kop_alamat ?? 'Jl. Hos Cokroaminoto No. 102, Enggal, Kota Bandar Lampung');
+        \App\Models\Setting::set('kop_kontak', $request->kop_kontak ?? 'Telp: (0721) 261450 • Website: www.smkn4bandarlampung.sch.id • Email: smkn4bl@gmail.com');
+        \App\Models\Setting::set('kop_kode_pos', $request->kop_kode_pos ?? '35118');
+
+        return redirect()->route('admin.pengaturan')->with('success', 'Pengaturan umum & KOP surat sekolah berhasil disimpan.');
     }
 
     /**

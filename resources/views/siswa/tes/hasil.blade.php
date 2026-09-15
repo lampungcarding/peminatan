@@ -241,18 +241,12 @@
         </div>
 
         {{-- OFFICIAL KOP SURAT (PRINT ONLY) --}}
-        <div class="print-kop-wrapper d-none d-print-block">
-            <div class="print-kop-instansi">Pemerintah Provinsi Lampung
-            </div>
-            <div class="print-kop-sekolah">
-                {{ \App\Models\Setting::get('nama_sekolah', 'SMK NEGERI 1 BANDAR LAMPUNG') }}
-            </div>
-            <div class="print-kop-title">
-                LEMBAR HASIL ASESMEN MINAT KARIER & KEPRIBADIAN (HOLLAND / RIASEC)
-            </div>
-            <div class="print-kop-sub">
-                Tahun Ajaran {{ \App\Models\Setting::get('tahun_ajaran', '2024/2025') }} • Sistem Perencanaan Karier & Studi Siswa
-            </div>
+        <div class="d-none d-print-block mb-3">
+            @include('partials.kop_surat', [
+                'judulDokumen' => 'LEMBAR HASIL ASESMEN MINAT KARIER & KEPRIBADIAN (HOLLAND / RIASEC)',
+                'subJudulDokumen' => 'Tahun Ajaran ' . \App\Models\Setting::get('tahun_ajaran', '2026/2027') . ' • Sistem Bimbingan Konseling & Perencanaan Karier Siswa',
+                'align' => 'center'
+            ])
         </div>
 
         {{-- DATA IDENTITAS SISWA (PRINT & SCREEN OPTIMIZED) --}}
