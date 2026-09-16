@@ -22,7 +22,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('admin.pengaturan.umum') }}">
+            <form method="POST" action="{{ route('admin.pengaturan.umum') }}" enctype="multipart/form-data">
                 @csrf
 
                 <div class="mb-3">
@@ -118,129 +118,88 @@
                     @enderror
                 </div>
 
-                {{-- SECTION KHUSUS: KOP SURAT RESMI SEKOLAH --}}
+                {{-- SECTION KHUSUS: UPLOAD GAMBAR KOP SURAT RESMI --}}
                 <div class="mt-4 pt-3 border-top">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div>
                             <h3 style="font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0;">
-                                <i class="bi bi-file-earmark-text text-primary me-2"></i>Format KOP Surat Resmi Dokumen & Laporan
+                                <i class="bi bi-image text-primary me-2"></i>Gambar KOP Surat Resmi Sekolah
                             </h3>
                             <p style="font-size: 0.78rem; color: #64748b; margin: 2px 0 0 0;">
-                                Konfigurasi KOP ini otomatis diterapkan pada seluruh lembar cetak hasil siswa & rekapitulasi admin
+                                Unggah file gambar KOP surat (banner resmi sekolah). Gambar ini langsung dipasang di bagian atas seluruh lembar cetak dokumen & laporan
                             </p>
                         </div>
                     </div>
 
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label for="kop_instansi_atas" class="form-label" style="font-weight:600; font-size:0.82rem; color:#475569;">
-                                Instansi Pembina (Baris 1)
-                            </label>
-                            <input type="text"
-                                   class="filter-select @error('kop_instansi_atas') is-invalid @enderror"
-                                   id="kop_instansi_atas"
-                                   name="kop_instansi_atas"
-                                   value="{{ old('kop_instansi_atas', $settings['kop_instansi_atas'] ?? 'PEMERINTAH PROVINSI LAMPUNG') }}"
-                                   placeholder="Contoh: PEMERINTAH PROVINSI LAMPUNG"
-                                   oninput="updateKopPreview()">
+                    {{-- Status KOP Saat Ini --}}
+                    @if(!empty($settings['kop_gambar']) && file_exists(public_path($settings['kop_gambar'])))
+                        <div class="card mb-3 p-3" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px;">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 0.74rem;">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Gambar KOP Aktif Terpasang
+                                </span>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        style="font-size: 0.75rem; padding: 3px 10px; border-radius: 6px;"
+                                        onclick="if(confirm('Apakah Anda yakin ingin menghapus gambar KOP surat sekolah ini?')) document.getElementById('formHapusKop').submit();">
+                                    <i class="bi bi-trash me-1"></i> Hapus KOP
+                                </button>
+                            </div>
+                            <div style="background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #cbd5e1; text-align: center;">
+                                <img src="{{ asset($settings['kop_gambar']) }}"
+                                     alt="KOP Surat Resmi"
+                                     style="width: 100%; max-height: 120px; object-fit: contain; display: block; margin: 0 auto;">
+                            </div>
+                            <small class="text-muted mt-2 d-block" style="font-size: 0.72rem;">
+                                <i class="bi bi-info-circle me-1"></i> Gambar di atas saat ini aktif digunakan pada cetak Rekapitulasi Siswa, Lembar Pilihan, dan Lembar Tes RIASEC.
+                            </small>
                         </div>
-
-                        <div class="col-md-6">
-                            <label for="kop_instansi_tengah" class="form-label" style="font-weight:600; font-size:0.82rem; color:#475569;">
-                                Dinas / Badan Pendidikan (Baris 2)
-                            </label>
-                            <input type="text"
-                                   class="filter-select @error('kop_instansi_tengah') is-invalid @enderror"
-                                   id="kop_instansi_tengah"
-                                   name="kop_instansi_tengah"
-                                   value="{{ old('kop_instansi_tengah', $settings['kop_instansi_tengah'] ?? 'DINAS PENDIDIKAN DAN KEBUDAYAAN') }}"
-                                   placeholder="Contoh: DINAS PENDIDIKAN DAN KEBUDAYAAN"
-                                   oninput="updateKopPreview()">
+                    @else
+                        <div class="p-3 mb-3 d-flex align-items-center gap-3" style="background: #f1f5f9; border: 1px dashed #94a3b8; border-radius: 8px;">
+                            <div style="width: 40px; height: 40px; border-radius: 8px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #64748b;">
+                                <i class="bi bi-image"></i>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #475569;">
+                                <strong>Belum ada gambar KOP surat yang diunggah.</strong><br>
+                                Dokumen cetak saat ini menggunakan kop nama sekolah teks standar. Silakan unggah gambar KOP sekolah di bawah ini.
+                            </div>
                         </div>
-                    </div>
+                    @endif
 
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-8">
-                            <label for="kop_nama_sekolah" class="form-label" style="font-weight:600; font-size:0.82rem; color:#475569;">
-                                Nama Satuan Pendidikan Pada KOP (Baris 3)
-                            </label>
-                            <input type="text"
-                                   class="filter-select @error('kop_nama_sekolah') is-invalid @enderror"
-                                   id="kop_nama_sekolah"
-                                   name="kop_nama_sekolah"
-                                   value="{{ old('kop_nama_sekolah', $settings['kop_nama_sekolah'] ?? $settings['nama_sekolah']) }}"
-                                   placeholder="Contoh: SMK NEGERI 4 BANDAR LAMPUNG"
-                                   oninput="updateKopPreview()">
-                        </div>
-
-                        <div class="col-md-4">
-                            <label for="kop_kode_pos" class="form-label" style="font-weight:600; font-size:0.82rem; color:#475569;">
-                                Kode Pos
-                            </label>
-                            <input type="text"
-                                   class="filter-select @error('kop_kode_pos') is-invalid @enderror"
-                                   id="kop_kode_pos"
-                                   name="kop_kode_pos"
-                                   value="{{ old('kop_kode_pos', $settings['kop_kode_pos'] ?? '35118') }}"
-                                   placeholder="Contoh: 35118"
-                                   oninput="updateKopPreview()">
-                        </div>
-                    </div>
-
+                    {{-- Input Unggah File Baru --}}
                     <div class="mb-3">
-                        <label for="kop_alamat" class="form-label" style="font-weight:600; font-size:0.82rem; color:#475569;">
-                            Alamat Lengkap / Jalan Sekolah (Baris 4)
+                        <label for="kop_gambar" class="form-label" style="font-weight:600; font-size:0.84rem; color:#475569;">
+                            {{ !empty($settings['kop_gambar']) ? 'Ganti / Unggah Gambar KOP Baru' : 'Pilih File Gambar KOP Surat' }}
                         </label>
-                        <input type="text"
-                               class="filter-select @error('kop_alamat') is-invalid @enderror"
-                               id="kop_alamat"
-                               name="kop_alamat"
-                               value="{{ old('kop_alamat', $settings['kop_alamat'] ?? 'Jl. Hos Cokroaminoto No. 102, Enggal, Kota Bandar Lampung') }}"
-                               placeholder="Contoh: Jl. Hos Cokroaminoto No. 102, Enggal, Kota Bandar Lampung"
-                               oninput="updateKopPreview()">
+                        <input type="file"
+                               class="filter-select @error('kop_gambar') is-invalid @enderror"
+                               id="kop_gambar"
+                               name="kop_gambar"
+                               accept="image/png, image/jpeg, image/jpg, image/webp"
+                               onchange="previewSelectedKop(this)">
+                        <div class="form-text" style="font-size:0.75rem; color:#64748b; margin-top: 4px;">
+                            <i class="bi bi-info-circle text-primary me-1"></i>
+                            Format file: <strong>PNG, JPG, JPEG, WEBP</strong> (Maks. 3 MB). Disarankan menggunakan banner memanjang/horizontal (rasio ~5:1 s/d 8:1) dengan resolusi tajam agar hasil cetak PDF / print rapi.
+                        </div>
+                        @error('kop_gambar')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    <div class="mb-3">
-                        <label for="kop_kontak" class="form-label" style="font-weight:600; font-size:0.82rem; color:#475569;">
-                            Kontak Resmi (Telepon / Email / Website) (Baris 5)
-                        </label>
-                        <input type="text"
-                               class="filter-select @error('kop_kontak') is-invalid @enderror"
-                               id="kop_kontak"
-                               name="kop_kontak"
-                               value="{{ old('kop_kontak', $settings['kop_kontak'] ?? 'Telp: (0721) 261450 • Website: www.smkn4bandarlampung.sch.id • Email: smkn4bl@gmail.com') }}"
-                               placeholder="Contoh: Telp: (0721) 261450 • Website: www.smkn4bandarlampung.sch.id • Email: smkn4bl@gmail.com"
-                               oninput="updateKopPreview()">
-                    </div>
-
-                    {{-- Live Visual Preview KOP --}}
-                    <div class="p-3 mb-4" style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px;">
+                    {{-- Live Preview Sebelum Simpan --}}
+                    <div id="new_kop_preview_container" class="p-3 mb-4 d-none" style="background: #f0fdf4; border: 1.5px dashed #22c55e; border-radius: 8px;">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="badge bg-secondary" style="font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase;">
-                                <i class="bi bi-eye me-1"></i> Pratinjau Tampilan KOP Surat Cetak
+                            <span class="badge bg-success" style="font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase;">
+                                <i class="bi bi-eye me-1"></i> Pratinjau File Baru Yang Dipilih
                             </span>
-                            <small class="text-muted" style="font-size: 0.72rem;">Standar Surat Dinas Resmi</small>
+                            <small class="text-success fw-semibold" id="new_kop_filename" style="font-size: 0.74rem;"></small>
                         </div>
-
-                        <div style="background: #ffffff; padding: 12px 16px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-align: center;">
-                            <div id="prev_instansi_atas" style="font-size: 0.78rem; font-weight: 700; color: #1e293b; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.2;">
-                                {{ $settings['kop_instansi_atas'] ?? 'PEMERINTAH PROVINSI LAMPUNG' }}
-                            </div>
-                            <div id="prev_instansi_tengah" style="font-size: 0.82rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.25;">
-                                {{ $settings['kop_instansi_tengah'] ?? 'DINAS PENDIDIKAN DAN KEBUDAYAAN' }}
-                            </div>
-                            <div id="prev_nama_sekolah" style="font-size: 1.05rem; font-weight: 900; color: #000; text-transform: uppercase; letter-spacing: -0.01em; line-height: 1.3; margin: 2px 0;">
-                                {{ $settings['kop_nama_sekolah'] ?? $settings['nama_sekolah'] }}
-                            </div>
-                            <div id="prev_alamat" style="font-size: 0.72rem; color: #334155; line-height: 1.3;">
-                                {{ $settings['kop_alamat'] ?? 'Jl. Hos Cokroaminoto No. 102, Enggal, Kota Bandar Lampung' }} @if(!empty($settings['kop_kode_pos'])) Kodepos: {{ $settings['kop_kode_pos'] }} @endif
-                            </div>
-                            <div id="prev_kontak" style="font-size: 0.68rem; color: #475569; line-height: 1.3;">
-                                {{ $settings['kop_kontak'] ?? 'Telp: (0721) 261450 • Website: www.smkn4bandarlampung.sch.id • Email: smkn4bl@gmail.com' }}
-                            </div>
-                            {{-- Double Border Dinas --}}
-                            <div style="margin-top: 8px; border-top: 2.5px solid #000; border-bottom: 1px solid #000; height: 3px;"></div>
+                        <div style="background: #ffffff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-align: center;">
+                            <img id="new_kop_preview_img" src="" alt="Pratinjau KOP Baru" style="width: 100%; max-height: 120px; object-fit: contain; display: block; margin: 0 auto;">
                         </div>
+                        <small class="text-muted mt-2 d-block text-center" style="font-size: 0.72rem;">
+                            Klik tombol <strong>"Simpan Pengaturan & KOP Sekolah"</strong> di bawah untuk menerapkan perubahan ini.
+                        </small>
                     </div>
                 </div>
 
@@ -248,22 +207,42 @@
                     <i class="bi bi-save me-2"></i> Simpan Pengaturan & KOP Sekolah
                 </button>
             </form>
+
+            {{-- Form tersembunyi untuk menghapus KOP --}}
+            <form id="formHapusKop" action="{{ route('admin.pengaturan.kop.hapus') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
         </div>
 
         <script>
-            function updateKopPreview() {
-                const atas = document.getElementById('kop_instansi_atas').value || 'PEMERINTAH PROVINSI LAMPUNG';
-                const tengah = document.getElementById('kop_instansi_tengah').value || 'DINAS PENDIDIKAN DAN KEBUDAYAAN';
-                const sekolah = document.getElementById('kop_nama_sekolah').value || document.getElementById('nama_sekolah').value || 'SMK NEGERI 4 BANDAR LAMPUNG';
-                const alamat = document.getElementById('kop_alamat').value || 'Jl. Hos Cokroaminoto No. 102, Enggal, Kota Bandar Lampung';
-                const kodepos = document.getElementById('kop_kode_pos').value;
-                const kontak = document.getElementById('kop_kontak').value || 'Telp: (0721) 261450 • Website: www.smkn4bandarlampung.sch.id';
+            function previewSelectedKop(input) {
+                const container = document.getElementById('new_kop_preview_container');
+                const img = document.getElementById('new_kop_preview_img');
+                const filenameLabel = document.getElementById('new_kop_filename');
 
-                document.getElementById('prev_instansi_atas').innerText = atas;
-                document.getElementById('prev_instansi_tengah').innerText = tengah;
-                document.getElementById('prev_nama_sekolah').innerText = sekolah;
-                document.getElementById('prev_alamat').innerText = alamat + (kodepos ? ' Kodepos: ' + kodepos : '');
-                document.getElementById('prev_kontak').innerText = kontak;
+                if (input.files && input.files[0]) {
+                    const file = input.files[0];
+
+                    // Validasi ukuran sisi klien (maks 3MB)
+                    if (file.size > 3 * 1024 * 1024) {
+                        alert('Ukuran file gambar melebihi batas 3 MB. Silakan pilih file dengan ukuran lebih kecil.');
+                        input.value = '';
+                        container.classList.add('d-none');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        img.src = e.target.result;
+                        filenameLabel.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+                        container.classList.remove('d-none');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    container.classList.add('d-none');
+                    img.src = '';
+                    filenameLabel.textContent = '';
+                }
             }
         </script>
 
@@ -371,8 +350,8 @@
         <div class="panel-card mb-4">
             <div class="panel-header mb-3">
                 <div>
-                    <h2><i class="bi bi-cloud-check me-2 text-success"></i>Integrasi KIP Kuliah</h2>
-                    <p>Status integrasi endpoint prodijson kementerian</p>
+                    <h2><i class="bi bi-cloud-check me-2 text-success"></i>Tracer Vokasi Kemendikdasmen</h2>
+                    <p>Status pangkalan data 4.800+ kampus & API getProdi</p>
                 </div>
             </div>
 
@@ -382,14 +361,14 @@
                     <strong style="color:#166534; font-size:0.88rem;">Terkoneksi & Siap Digunakan</strong>
                 </div>
                 <div style="font-size:0.78rem; color:#15803d; line-height:1.4;">
-                    Endpoint <code>https://kip-kuliah.kemdiktisaintek.go.id/prodijson</code> aktif dengan sesi otomatis & caching responsif.
+                    Basis data <strong>4.800+ Perguruan Tinggi</strong> aktif dengan autentikasi otomatis NISN & endpoint <code>api/getProdi</code> Kemendikdasmen.
                 </div>
             </div>
 
             <form method="POST" action="{{ route('admin.pengaturan.sync-kip') }}">
                 @csrf
-                <button type="submit" class="btn-export-outline w-100 justify-content-center py-2" onclick="return confirm('Sinkronkan ulang koneksi dan cache KIP Kuliah?');">
-                    <i class="bi bi-arrow-repeat"></i> Sinkronkan Ulang KIP Kuliah
+                <button type="submit" class="btn-export-outline w-100 justify-content-center py-2" onclick="return confirm('Sinkronkan ulang koneksi dan cache Tracer Vokasi?');">
+                    <i class="bi bi-arrow-repeat"></i> Sinkronkan Ulang Basis Data Kampus
                 </button>
             </form>
         </div>

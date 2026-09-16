@@ -157,7 +157,7 @@ class SiswaController extends Controller
     }
 
     /**
-     * Cari prodi berdasarkan kampus (AJAX).
+     * Cari prodi & detail profil perguruan tinggi berdasarkan kampus (AJAX).
      */
     public function cariProdi(Request $request)
     {
@@ -165,9 +165,12 @@ class SiswaController extends Controller
             'pt_id' => ['required', 'string'],
         ]);
 
-        $results = $this->kipService->getProdiByPT($request->pt_id);
+        $detail = $this->kipService->getDetailAndProdi($request->pt_id);
 
-        return response()->json($results);
+        return response()->json([
+            'campus' => $detail['campus'] ?? null,
+            'prodi' => $detail['prodi'] ?? [],
+        ]);
     }
 
     /**

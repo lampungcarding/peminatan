@@ -14,11 +14,14 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        date_default_timezone_set('Asia/Jakarta');
+        config([
+            'app.timezone' => 'Asia/Jakarta',
+            'app.locale' => 'id',
+        ]);
+        \Carbon\Carbon::setLocale('id');
+        @setlocale(LC_TIME, 'id_ID.utf8', 'id_ID', 'indonesia', 'id');
     }
 }

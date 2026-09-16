@@ -189,6 +189,34 @@
                             <i class="bi bi-arrow-repeat me-1"></i> Ganti
                         </button>
                     </div>
+
+                    {{-- Informasi Resmi BAN-PT Kampus Terpilih --}}
+                    <div id="campusDetailCard" style="display:none; background:#ffffff; border:1.5px solid #e2e8f0; border-radius:var(--radius-md); padding:16px;" class="mt-2 shadow-sm">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pb-2 mb-2 border-bottom">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-patch-check-fill text-primary" style="font-size:1.15rem;"></i>
+                                <span style="font-size:0.8rem; font-weight:700; color:#334155;">Akreditasi Institusi (BAN-PT):</span>
+                                <span id="campusAkredBadge" class="badge bg-primary px-2.5 py-1" style="font-size:0.8rem; font-weight:800;">-</span>
+                            </div>
+                            <div style="font-size:0.74rem; font-weight:600; color:#64748b;" id="campusKodeBadge">Kode PT: -</div>
+                        </div>
+                        <div class="row g-2" style="font-size:0.78rem;">
+                            <div class="col-12 col-md-6 d-flex align-items-start gap-2 text-muted">
+                                <i class="bi bi-geo-alt-fill text-danger mt-1"></i>
+                                <div>
+                                    <strong class="text-dark d-block">Alamat & Wilayah:</strong>
+                                    <span id="campusAlamat">-</span>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6 d-flex align-items-start gap-2 text-muted">
+                                <i class="bi bi-award-fill text-warning mt-1"></i>
+                                <div>
+                                    <strong class="text-dark d-block">Nomor SK Akreditasi:</strong>
+                                    <span id="campusNoSk">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -203,7 +231,7 @@
 
                 <div id="prodiSpinner" style="display:none;" class="text-center py-4">
                     <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
-                    <div style="font-size:0.82rem; color:#64748b;">Menghubungkan ke API KIP Kuliah untuk memuat jurusan...</div>
+                    <div style="font-size:0.82rem; color:#64748b;">Memuat jurusan & akreditasi resmi dari BAN-PT (D3/D4/S1)...</div>
                 </div>
 
                 <select class="form-select form-control-pro" id="selectProdi" onchange="pilihProdi()" style="display:none; height:50px;">
@@ -756,6 +784,9 @@
         document.getElementById('searchKampus').style.display = 'block';
         document.getElementById('clearSearchBtn').style.display = 'none';
         document.getElementById('selectedKampus').style.display = 'none';
+        if (document.getElementById('campusDetailCard')) {
+            document.getElementById('campusDetailCard').style.display = 'none';
+        }
         document.getElementById('quickChipsContainer').style.display = 'block';
         document.getElementById('prodiSection').style.display = 'none';
         document.getElementById('prodiDetail').style.display = 'none';
@@ -772,11 +803,14 @@
         document.getElementById('searchKampus').focus();
     }
 
-    // === Load Prodi ===
+    // === Load Prodi & Detail Kampus BAN-PT ===
     function loadProdi(ptIdOrName) {
         document.getElementById('prodiSection').style.display = 'block';
         document.getElementById('prodiSpinner').style.display = 'block';
         document.getElementById('selectProdi').style.display = 'none';
+        if (document.getElementById('campusDetailCard')) {
+            document.getElementById('campusDetailCard').style.display = 'none';
+        }
 
         fetch('{{ route("siswa.cari-prodi") }}', {
             method: 'POST',
@@ -789,17 +823,38 @@
         })
         .then(res => res.json())
         .then(data => {
-            prodiData = data;
+            let prodis = [];
+            let campus = null;
+
+            if (Array.isArray(data)) {
+                prodis = data;
+            } else {
+                prodis = data.prodi || [];
+                campus = data.campus || null;
+            }
+
+            prodiData = prodis;
             document.getElementById('prodiSpinner').style.display = 'none';
 
-            const select = document.getElementById('selectProdi');
-            select.innerHTML = '<option value="">-- Pilih Program Studi (' + data.length + ' Jurusan Tersedia) --</option>';
+            // Tampilkan rincian profil kampus dari BAN-PT jika ada
+            const campusCard = document.getElementById('campusDetailCard');
+            if (campus && campusCard) {
+                const akred = campus.akreditasi_pt && campus.akreditasi_pt !== '-' ? `${campus.akreditasi_pt} ⭐` : 'Terdaftar';
+                document.getElementById('campusAkredBadge').textContent = akred;
+                document.getElementById('campusKodeBadge').textContent = campus.kode_pt ? `Kode PT: ${campus.kode_pt}` : '';
+                document.getElementById('campusAlamat').textContent = `${campus.alamat || '-'} (${campus.kota || '-'})`;
+                document.getElementById('campusNoSk').textContent = `${campus.no_sk || '-'} (${campus.tgl_sk || '-'})`;
+                campusCard.style.display = 'block';
+            }
 
-            data.forEach((item, index) => {
+            const select = document.getElementById('selectProdi');
+            select.innerHTML = '<option value="">-- Pilih Program Studi (' + prodis.length + ' Jurusan D3/D4/S1 Tersedia) --</option>';
+
+            prodis.forEach((item, index) => {
                 const option = document.createElement('option');
                 option.value = index;
-                const akred = item.akreditasi ? `[${item.akreditasi}]` : '';
-                option.textContent = `${item.nama} (${item.jenjang}) ${akred}`;
+                const akredBadge = item.akreditasi && item.akreditasi !== '-' ? ` [Akreditasi: ${item.akreditasi}]` : '';
+                option.textContent = `${item.nama} (${item.jenjang})${akredBadge}`;
                 select.appendChild(option);
             });
 

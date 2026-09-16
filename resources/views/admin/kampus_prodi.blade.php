@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', 'Data Kampus & Prodi (prodijson)')
+@section('title', 'Data Kampus & Prodi (Tracer Kemendikdasmen)')
 
 @section('content')
 <div class="page-title-row">
     <div>
         <h1>Data Kampus & Program Studi</h1>
-        <p>Integrasi pangkalan data resmi KIP Kuliah Kemdiktisaintek (prodijson)</p>
+        <p>Integrasi pangkalan data resmi Tracer Vokasi Kemendikdasmen (4.800+ Perguruan Tinggi)</p>
     </div>
     <div class="date-badge">
         <i class="bi bi-hdd-network-fill" style="color: #2563eb;"></i>
-        <span>Status API: Terhubung Aktif</span>
+        <span>Status Basis Data: 4.800+ Kampus Aktif</span>
     </div>
 </div>
 
@@ -112,11 +112,11 @@
 
     function fetchProdiAdmin(ptNama) {
         document.getElementById('modalKampusTitle').textContent = ptNama;
-        document.getElementById('modalProdiCount').textContent = 'Menghubungkan ke API prodijson...';
+        document.getElementById('modalProdiCount').textContent = 'Memuat data resmi dari BAN-PT...';
         document.getElementById('modalProdiBody').innerHTML = `
             <tr>
                 <td colspan="4" class="text-center py-4 text-muted">
-                    <div class="spinner-border spinner-border-sm text-primary me-2"></div> Mengambil data program studi...
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div> Mengambil data program studi & akreditasi BAN-PT...
                 </td>
             </tr>`;
 
@@ -134,25 +134,43 @@
         })
         .then(res => res.json())
         .then(data => {
-            document.getElementById('modalProdiCount').textContent = `Ditemukan ${data.length} Program Studi`;
+            let prodis = [];
+            let campus = null;
+
+            if (Array.isArray(data)) {
+                prodis = data;
+            } else {
+                prodis = data.prodi || [];
+                campus = data.campus || null;
+            }
+
+            const akredText = campus && campus.akreditasi_pt && campus.akreditasi_pt !== '-' ? ` · Akreditasi Institusi: ${campus.akreditasi_pt}` : '';
+            document.getElementById('modalProdiCount').textContent = `Ditemukan ${prodis.length} Program Studi D3/D4/S1${akredText}`;
+
             let html = '';
-            if (data.length === 0) {
+            if (prodis.length === 0) {
                 html = '<tr><td colspan="4" class="text-center py-4 text-muted">Tidak ada program studi ditemukan untuk kampus ini.</td></tr>';
             } else {
-                data.forEach((p, index) => {
+                prodis.forEach((p, index) => {
+                    const badgeClass = p.akreditasi === 'Unggul' || p.akreditasi === 'A' 
+                        ? 'bg-success-subtle text-success-emphasis' 
+                        : (p.akreditasi === 'Baik Sekali' || p.akreditasi === 'B' 
+                            ? 'bg-primary-subtle text-primary-emphasis' 
+                            : 'bg-warning-subtle text-warning-emphasis');
+
                     html += `
                         <tr>
                             <td class="text-center">${index + 1}</td>
                             <td class="fw-bold">${p.nama}</td>
                             <td><span class="badge bg-light text-dark border">${p.jenjang || '-'}</span></td>
-                            <td><span class="badge bg-warning-subtle text-warning-emphasis">${p.akreditasi || '-'}</span></td>
+                            <td><span class="badge ${badgeClass}">${p.akreditasi || '-'}</span></td>
                         </tr>`;
                 });
             }
             document.getElementById('modalProdiBody').innerHTML = html;
         })
         .catch(err => {
-            document.getElementById('modalProdiBody').innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4">Gagal memuat data dari server KIP Kuliah.</td></tr>';
+            document.getElementById('modalProdiBody').innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4">Gagal memuat data dari pangkalan data.</td></tr>';
         });
     }
 </script>

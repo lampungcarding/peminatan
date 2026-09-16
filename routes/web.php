@@ -112,6 +112,7 @@ Route::middleware(['auth', 'role:admin,guru_bk'])->prefix('admin')->group(functi
         // Pengaturan Aplikasi
         Route::get('/pengaturan', [AdminController::class, 'pengaturan'])->name('admin.pengaturan');
         Route::post('/pengaturan/umum', [AdminController::class, 'simpanPengaturanUmum'])->name('admin.pengaturan.umum');
+        Route::post('/pengaturan/kop/hapus', [AdminController::class, 'hapusKop'])->name('admin.pengaturan.kop.hapus');
         Route::post('/pengaturan/password', [AdminController::class, 'updatePasswordAdmin'])->name('admin.pengaturan.password');
         Route::post('/pengaturan/clear-cache', [AdminController::class, 'clearCache'])->name('admin.pengaturan.clear-cache');
         Route::post('/pengaturan/sync-kip', [AdminController::class, 'syncKip'])->name('admin.pengaturan.sync-kip');

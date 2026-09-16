@@ -749,9 +749,12 @@ class AdminController extends Controller
             'pt_id' => ['required', 'string'],
         ]);
 
-        $results = $this->kipService->getProdiByPT($request->pt_id);
+        $detail = $this->kipService->getDetailAndProdi($request->pt_id);
 
-        return response()->json($results);
+        return response()->json([
+            'campus' => $detail['campus'] ?? null,
+            'prodi' => $detail['prodi'] ?? [],
+        ]);
     }
 
     /**
@@ -1030,12 +1033,11 @@ class AdminController extends Controller
             'batas_pengisian' => 'required|date',
             'status_pendataan' => 'required|in:buka,tutup',
             'pesan_pengumuman' => 'nullable|string',
-            'kop_instansi_atas' => 'nullable|string|max:255',
-            'kop_instansi_tengah' => 'nullable|string|max:255',
-            'kop_nama_sekolah' => 'nullable|string|max:255',
-            'kop_alamat' => 'nullable|string|max:500',
-            'kop_kontak' => 'nullable|string|max:500',
-            'kop_kode_pos' => 'nullable|string|max:20',
+            'kop_gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+        ], [
+            'kop_gambar.image' => 'File KOP surat harus berupa file gambar.',
+            'kop_gambar.mimes' => 'Format gambar KOP surat yang diizinkan adalah JPG, JPEG, PNG, atau WEBP.',
+            'kop_gambar.max' => 'Ukuran file gambar KOP surat tidak boleh melebihi 3MB.',
         ]);
 
         \App\Models\Setting::set('nama_sekolah', $request->nama_sekolah);
@@ -1045,15 +1047,43 @@ class AdminController extends Controller
         \App\Models\Setting::set('status_pendataan', $request->status_pendataan);
         \App\Models\Setting::set('pesan_pengumuman', $request->pesan_pengumuman ?? '');
 
-        // Simpan Konfigurasi KOP Surat Resmi
-        \App\Models\Setting::set('kop_instansi_atas', $request->kop_instansi_atas ?? 'PEMERINTAH PROVINSI LAMPUNG');
-        \App\Models\Setting::set('kop_instansi_tengah', $request->kop_instansi_tengah ?? 'DINAS PENDIDIKAN DAN KEBUDAYAAN');
-        \App\Models\Setting::set('kop_nama_sekolah', $request->kop_nama_sekolah ?: $request->nama_sekolah);
-        \App\Models\Setting::set('kop_alamat', $request->kop_alamat ?? 'Jl. Hos Cokroaminoto No. 102, Enggal, Kota Bandar Lampung');
-        \App\Models\Setting::set('kop_kontak', $request->kop_kontak ?? 'Telp: (0721) 261450 • Website: www.smkn4bandarlampung.sch.id • Email: smkn4bl@gmail.com');
-        \App\Models\Setting::set('kop_kode_pos', $request->kop_kode_pos ?? '35118');
+        // Upload Gambar KOP Surat Resmi jika ada
+        if ($request->hasFile('kop_gambar')) {
+            $file = $request->file('kop_gambar');
 
-        return redirect()->route('admin.pengaturan')->with('success', 'Pengaturan umum & KOP surat sekolah berhasil disimpan.');
+            // Hapus file KOP lama jika ada
+            $oldKop = \App\Models\Setting::get('kop_gambar');
+            if ($oldKop && file_exists(public_path($oldKop))) {
+                @unlink(public_path($oldKop));
+            }
+
+            $destinationDir = public_path('uploads/kop');
+            if (!file_exists($destinationDir)) {
+                mkdir($destinationDir, 0755, true);
+            }
+
+            $fileName = 'kop_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move($destinationDir, $fileName);
+
+            \App\Models\Setting::set('kop_gambar', 'uploads/kop/' . $fileName);
+        }
+
+        return redirect()->route('admin.pengaturan')->with('success', 'Pengaturan umum & KOP surat sekolah berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus gambar KOP surat resmi yang aktif.
+     */
+    public function hapusKop()
+    {
+        $oldKop = \App\Models\Setting::get('kop_gambar');
+        if ($oldKop && file_exists(public_path($oldKop))) {
+            @unlink(public_path($oldKop));
+        }
+
+        \App\Models\Setting::set('kop_gambar', null);
+
+        return redirect()->route('admin.pengaturan')->with('success', 'Gambar KOP surat resmi berhasil dihapus.');
     }
 
     /**
@@ -1096,14 +1126,14 @@ class AdminController extends Controller
     }
 
     /**
-     * Sinkronkan Ulang API KIP Kuliah.
+     * Sinkronkan Ulang Basis Data Kampus Tracer Vokasi.
      */
     public function syncKip()
     {
         $this->kipService->clearCache();
         $this->kipService->cariPerguruanTinggi('lampung');
 
-        return redirect()->route('admin.pengaturan')->with('success', 'Cache dan sesi koneksi KIP Kuliah berhasil disinkronkan kembali.');
+        return redirect()->route('admin.pengaturan')->with('success', 'Cache dan basis data kampus Tracer Vokasi berhasil disinkronkan kembali.');
     }
 
     /**
